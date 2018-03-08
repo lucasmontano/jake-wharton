@@ -9,9 +9,16 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 import retrofit2.Response
+import com.lucasmontano.jakewharton.RxImmediateSchedulerRule
+import org.junit.ClassRule
 
 @RunWith(MockitoJUnitRunner::class)
 class RepoApiServiceUnitTest {
+
+    companion object {
+        @ClassRule @JvmField
+        val schedulers = RxImmediateSchedulerRule()
+    }
 
     private lateinit var repoApiService : RepoApiService
     private lateinit var request: RepoRequest
