@@ -9,6 +9,8 @@ import com.lucasmontano.jakewharton.networking.RestAdapterFactory
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 import org.junit.*
+import retrofit2.adapter.rxjava2.Result
+import java.util.concurrent.CompletableFuture
 
 @RunWith(MockitoJUnitRunner::class)
 class GetRepoInteractorUnitTest {
@@ -30,7 +32,9 @@ class GetRepoInteractorUnitTest {
     @Throws(Exception::class)
     fun testGetRepoInteractor() {
 
-        val observer = object: Observer<List<RepoData>> {
+        val future = CompletableFuture<Result<List<RepoData>>>()
+
+        val observer = object: Observer<Result<List<RepoData>>> {
 
             override fun onComplete() {
 
@@ -40,8 +44,8 @@ class GetRepoInteractorUnitTest {
 
             }
 
-            override fun onNext(t: List<RepoData>) {
-                t.forEach { repoData: RepoData -> Assert.assertNotNull(repoData.description) }
+            override fun onNext(t: Result<List<RepoData>>) {
+                future.complete(t)
             }
 
             override fun onError(e: Throwable) {
@@ -51,6 +55,8 @@ class GetRepoInteractorUnitTest {
 
         getRepoInteractor.observe(observer = observer)
         getRepoInteractor.execute(1)
+
+        future.get().response()?.body()?.forEach { repoData: RepoData -> Assert.assertNotNull(repoData.description) }
     }
 
     @After

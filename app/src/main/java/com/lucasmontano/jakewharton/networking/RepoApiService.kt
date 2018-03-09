@@ -7,23 +7,24 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import retrofit2.HttpException
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.Result
 import java.io.IOException
 
 class RepoApiService(retrofit: Retrofit) {
 
     private var repoAPI: RepoAPI = retrofit.create<RepoAPI>(RepoAPI::class.java)
 
-    fun getRepo(request: RepoRequest) : Observable<List<RepoData>> {
+    fun getRepo(request: RepoRequest) : Observable<Result<List<RepoData>>> {
         val mapRequest: Map<String, Int> = hashMapOf("page" to request.page, "per_page" to request.per_page)
         return repoAPI.getRepo(mapRequest)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnError { t -> onError(t) }
-                .doOnNext { r -> processResponse(r) }
+                .doOnNext { r -> r.response()?.body()?.let { processResponse(it) } }
     }
 
     private fun processResponse(response: List<RepoData>) {
-        TODO("not implemented: Saving RepoResponse in Cache")
+
     }
 
     private fun onError(throwable: Throwable) {

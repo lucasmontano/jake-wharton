@@ -10,6 +10,7 @@ import org.mockito.junit.MockitoJUnitRunner
 import com.lucasmontano.jakewharton.RxImmediateSchedulerRule
 import com.lucasmontano.jakewharton.data.RepoData
 import org.junit.ClassRule
+import retrofit2.adapter.rxjava2.Result
 
 @RunWith(MockitoJUnitRunner::class)
 class RepoApiServiceUnitTest {
@@ -31,8 +32,8 @@ class RepoApiServiceUnitTest {
     @Test
     @Throws(Exception::class)
     fun testGetRepo() {
-        val observable : Observable<List<RepoData>> = repoApiService.getRepo(request)
-        observable.subscribe { t -> t.let { Assert.assertTrue(it.isNotEmpty()) } }
+        val observable : Observable<Result<List<RepoData>>> = repoApiService.getRepo(request)
+        observable.blockingFirst().response()?.body()?.isNotEmpty()?.let { Assert.assertTrue(it) }
     }
 
     @After
