@@ -4,7 +4,6 @@ import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 import com.lucasmontano.jakewharton.RxImmediateSchedulerRule
 import com.lucasmontano.jakewharton.data.RepoData
-import com.lucasmontano.jakewharton.interactors.GetRepoInteractor
 import com.lucasmontano.jakewharton.networking.RepoApiService
 import com.lucasmontano.jakewharton.networking.RestAdapterFactory
 import io.reactivex.Observer

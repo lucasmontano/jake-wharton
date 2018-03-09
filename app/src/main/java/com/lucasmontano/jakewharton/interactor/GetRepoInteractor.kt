@@ -1,4 +1,4 @@
-package com.lucasmontano.jakewharton.interactors
+package com.lucasmontano.jakewharton.interactor
 
 import com.lucasmontano.jakewharton.data.RepoData
 import com.lucasmontano.jakewharton.networking.RepoApiService
@@ -6,17 +6,19 @@ import com.lucasmontano.jakewharton.networking.RepoRequest
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.AsyncSubject
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiService) {
 
-    var repoSubscription: BehaviorSubject<List<RepoData>> = BehaviorSubject.create()
+    var repoSubscription: AsyncSubject<List<RepoData>> = AsyncSubject.create()
 
     /**
-     * Get Jake Repos
+     * Get a page of Jake's Repos
+     *
+     * @param page The page number.
      */
     fun execute(page: Int) {
 
@@ -28,9 +30,9 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
     }
 
     /**
-     * Observe Repos
+     * Observes Repos
      *
-     * @param observer
+     * @param observer The Observer of Repos.
      */
     fun observe(observer: Observer<List<RepoData>>) {
         return repoSubscription
