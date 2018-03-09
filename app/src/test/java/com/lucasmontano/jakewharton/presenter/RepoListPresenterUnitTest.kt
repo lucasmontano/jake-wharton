@@ -52,6 +52,25 @@ class RepoListPresenterUnitTest {
         }
     }
 
+    @Test
+    @Throws(Exception::class)
+    fun testPaginationLimits() {
+
+        val future = CompletableFuture<String>()
+
+        val repoListView : RepoListView = object : RepoListView {
+            override fun showRepos(dataSet: List<RepoData>) {
+                future.complete(repoListPresenter.pagesLinks)
+            }
+        }
+        repoListPresenter.init(repoListView)
+        repoListPresenter.loadRepos()
+
+        future.get().let {
+            Assert.assertNotNull(it)
+        }
+    }
+
     @After
     fun tearDown() {
         repoListPresenter.unsubscribeFromNetworkRequests()

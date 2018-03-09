@@ -13,7 +13,7 @@ class RepoListPresenter @Inject constructor(private val getRepoInteractor: GetRe
     private lateinit var view: RepoListView
     private var repoDisposable: Disposable? = null
     private var pageToBeRequest: Int = 1
-    private var link: String? = null
+    var pagesLinks: String? = null
 
     fun init(view: RepoListView) {
         this.view = view
@@ -39,7 +39,7 @@ class RepoListPresenter @Inject constructor(private val getRepoInteractor: GetRe
                 result.response()?.let { response ->
 
                     response.headers().let { headers ->
-                        link = headers.get("Link")
+                        pagesLinks = headers.get("Link")
                     }
 
                     response.body()?.let { view.showRepos(it) }
