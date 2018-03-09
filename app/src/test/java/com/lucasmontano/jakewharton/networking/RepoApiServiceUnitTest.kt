@@ -33,7 +33,7 @@ class RepoApiServiceUnitTest {
     @Throws(Exception::class)
     fun testGetRepo() {
         val observable : Observable<Response<RepoResponse>> = repoApiService.getRepo(request)
-        observable.subscribe(Consumer { t -> Assert.assertNotNull(t.body()) })
+        observable.subscribe { t -> Assert.assertNotNull(t.body()) }
     }
 
     @After

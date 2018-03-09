@@ -1,8 +1,7 @@
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 26
@@ -36,6 +35,10 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:3.7.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.2.0'
     compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+
+    implementation 'com.google.dagger:dagger:2.15'
+    kapt 'com.google.dagger:dagger-compiler:2.15'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.15'
 
     compile 'com.google.code.gson:gson:2.8.2'
     testImplementation 'junit:junit:4.12'
