@@ -1,5 +1,6 @@
 package com.lucasmontano.jakewharton.interactor
 
+import com.lucasmontano.jakewharton.BuildConfig
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 import com.lucasmontano.jakewharton.RxImmediateSchedulerRule
@@ -54,7 +55,7 @@ class GetRepoInteractorUnitTest {
         }
 
         getRepoInteractor.observe(observer = observer)
-        getRepoInteractor.execute(1)
+        getRepoInteractor.execute(BuildConfig.JAKE_URL)
 
         future.get().response()?.body()?.forEach { repoData: RepoData -> Assert.assertNotNull(repoData.description) }
     }

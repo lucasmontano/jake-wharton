@@ -1,5 +1,6 @@
 package com.lucasmontano.jakewharton.networking
 
+import com.lucasmontano.jakewharton.BuildConfig
 import io.reactivex.Observable
 import org.junit.After
 import org.junit.Assert
@@ -21,18 +22,16 @@ class RepoApiServiceUnitTest {
     }
 
     private lateinit var repoApiService : RepoApiService
-    private lateinit var request: RepoRequest
 
     @Before
     fun setUp() {
         repoApiService = RepoApiService(RestAdapterFactory.adapter)
-        request = RepoRequest(1, 15)
     }
 
     @Test
     @Throws(Exception::class)
     fun testGetRepo() {
-        val observable : Observable<Result<List<RepoData>>> = repoApiService.getRepo(request)
+        val observable : Observable<Result<List<RepoData>>> = repoApiService.getRepo(BuildConfig.JAKE_URL)
         observable.blockingFirst().response()?.body()?.isNotEmpty()?.let { Assert.assertTrue(it) }
     }
 

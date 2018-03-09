@@ -14,9 +14,8 @@ class RepoApiService(retrofit: Retrofit) {
 
     private var repoAPI: RepoAPI = retrofit.create<RepoAPI>(RepoAPI::class.java)
 
-    fun getRepo(request: RepoRequest) : Observable<Result<List<RepoData>>> {
-        val mapRequest: Map<String, Int> = hashMapOf("page" to request.page, "per_page" to request.per_page)
-        return repoAPI.getRepo(mapRequest)
+    fun getRepo(url: String) : Observable<Result<List<RepoData>>> {
+        return repoAPI.getRepo(url)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnError { t -> onError(t) }

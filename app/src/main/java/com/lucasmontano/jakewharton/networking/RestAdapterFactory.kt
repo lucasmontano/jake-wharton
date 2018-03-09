@@ -19,7 +19,7 @@ object RestAdapterFactory {
         val okHttpClient = OkHttpClient.Builder().addInterceptor(interceptor).build()
 
         return Retrofit.Builder()
-                .baseUrl(BuildConfig.BASE_URI)
+                .baseUrl(BuildConfig.BASE_URL)
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
                 .client(okHttpClient)

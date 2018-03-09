@@ -1,5 +1,6 @@
 package com.lucasmontano.jakewharton.presenter
 
+import com.lucasmontano.jakewharton.BuildConfig
 import com.lucasmontano.jakewharton.data.RepoData
 import com.lucasmontano.jakewharton.interactor.GetRepoInteractor
 import com.lucasmontano.jakewharton.view.RepoListView
@@ -12,7 +13,7 @@ class RepoListPresenter @Inject constructor(private val getRepoInteractor: GetRe
 
     private lateinit var view: RepoListView
     private var repoDisposable: Disposable? = null
-    private var pageToBeRequest: Int = 1
+    private var pageToBeRequest: String = BuildConfig.JAKE_URL
     var pagesLinks: String? = null
 
     fun init(view: RepoListView) {
@@ -27,7 +28,7 @@ class RepoListPresenter @Inject constructor(private val getRepoInteractor: GetRe
         val observer = object: Observer<Result<List<RepoData>>> {
 
             override fun onComplete() {
-                pageToBeRequest++
+
             }
 
             override fun onSubscribe(d: Disposable) {

@@ -2,7 +2,6 @@ package com.lucasmontano.jakewharton.interactor
 
 import com.lucasmontano.jakewharton.data.RepoData
 import com.lucasmontano.jakewharton.networking.RepoApiService
-import com.lucasmontano.jakewharton.networking.RepoRequest
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -21,13 +20,8 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
      *
      * @param page The page number.
      */
-    fun execute(page: Int) {
-
-        val request = RepoRequest(
-            page = page,
-            per_page = 15
-        )
-        repoApiService.getRepo(request).subscribe(repoSubscription)
+    fun execute(page: String) {
+        repoApiService.getRepo(page).subscribe(repoSubscription)
     }
 
     /**

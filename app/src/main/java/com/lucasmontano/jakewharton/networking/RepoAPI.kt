@@ -4,10 +4,10 @@ import com.lucasmontano.jakewharton.data.RepoData
 import io.reactivex.Observable
 import retrofit2.adapter.rxjava2.Result
 import retrofit2.http.GET
-import retrofit2.http.QueryMap
+import retrofit2.http.Url
 
 interface RepoAPI {
 
-    @GET("repos")
-    fun getRepo(@QueryMap map: Map<String, Int>): Observable<Result<List<RepoData>>>
+    @GET
+    fun getRepo(@Url url: String): Observable<Result<List<RepoData>>>
 }
