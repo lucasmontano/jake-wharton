@@ -1,6 +1,6 @@
-package com.lucasmontano.jakewharton.networking
+package com.lucasmontano.jakewharton.data
 
-data class RepoResponse(val id: String) {
+data class RepoData(val id: String) {
 
     var name: String? = null
     var description: String? = null

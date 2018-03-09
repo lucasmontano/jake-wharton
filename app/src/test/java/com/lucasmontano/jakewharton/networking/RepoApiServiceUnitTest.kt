@@ -1,7 +1,6 @@
 package com.lucasmontano.jakewharton.networking
 
 import io.reactivex.Observable
-import io.reactivex.functions.Consumer
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -10,6 +9,7 @@ import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 import retrofit2.Response
 import com.lucasmontano.jakewharton.RxImmediateSchedulerRule
+import com.lucasmontano.jakewharton.data.RepoData
 import org.junit.ClassRule
 
 @RunWith(MockitoJUnitRunner::class)
@@ -32,8 +32,8 @@ class RepoApiServiceUnitTest {
     @Test
     @Throws(Exception::class)
     fun testGetRepo() {
-        val observable : Observable<Response<RepoResponse>> = repoApiService.getRepo(request)
-        observable.subscribe { t -> Assert.assertNotNull(t.body()) }
+        val observable : Observable<List<RepoData>> = repoApiService.getRepo(request)
+        observable.subscribe { t -> t.let { Assert.assertTrue(it.isNotEmpty()) } }
     }
 
     @After
