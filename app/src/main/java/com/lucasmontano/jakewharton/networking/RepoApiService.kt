@@ -9,7 +9,7 @@ import retrofit2.HttpException
 import retrofit2.Retrofit
 import java.io.IOException
 
-class RepoApiService(private var retrofit: Retrofit) {
+class RepoApiService(retrofit: Retrofit) {
 
     private var repoAPI: RepoAPI = retrofit.create<RepoAPI>(RepoAPI::class.java)
 

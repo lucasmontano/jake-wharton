@@ -7,7 +7,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
-import retrofit2.Response
 import com.lucasmontano.jakewharton.RxImmediateSchedulerRule
 import com.lucasmontano.jakewharton.data.RepoData
 import org.junit.ClassRule
