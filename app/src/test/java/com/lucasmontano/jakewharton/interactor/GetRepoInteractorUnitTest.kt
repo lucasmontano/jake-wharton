@@ -24,7 +24,7 @@ class GetRepoInteractorUnitTest {
 
     @Before
     fun setUp() {
-        var repoApiService = RepoApiService(RestAdapterFactory.adapter)
+        val repoApiService = RepoApiService(RestAdapterFactory.adapter)
         getRepoInteractor = GetRepoInteractor(repoApiService = repoApiService)
     }
 

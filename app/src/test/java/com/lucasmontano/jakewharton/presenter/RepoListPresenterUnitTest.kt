@@ -1,6 +1,5 @@
 package com.lucasmontano.jakewharton.presenter
 
-import io.reactivex.Observable
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -14,7 +13,6 @@ import com.lucasmontano.jakewharton.networking.RepoApiService
 import com.lucasmontano.jakewharton.networking.RestAdapterFactory
 import com.lucasmontano.jakewharton.view.RepoListView
 import org.junit.ClassRule
-import retrofit2.adapter.rxjava2.Result
 import java.util.concurrent.CompletableFuture
 
 @RunWith(MockitoJUnitRunner::class)
@@ -49,7 +47,9 @@ class RepoListPresenterUnitTest {
         repoListPresenter.init(repoListView)
         repoListPresenter.loadRepos()
 
-        Assert.assertFalse(future.get().isNotEmpty())
+        future.get().let {
+            Assert.assertTrue(it.isNotEmpty())
+        }
     }
 
     @After
