@@ -10,7 +10,7 @@ import com.lucasmontano.jakewharton.RxImmediateSchedulerRule
 import com.lucasmontano.jakewharton.data.RepoData
 import com.lucasmontano.jakewharton.interactor.GetRepoInteractor
 import com.lucasmontano.jakewharton.networking.RepoApiService
-import com.lucasmontano.jakewharton.networking.RestAdapterFactory
+import com.lucasmontano.jakewharton.networking.RetrofitAdapterFactory
 import com.lucasmontano.jakewharton.view.RepoListView
 import org.junit.ClassRule
 import java.util.concurrent.CompletableFuture
@@ -28,7 +28,7 @@ class RepoListPresenterUnitTest {
 
     @Before
     fun setUp() {
-        repoApiService = RepoApiService(RestAdapterFactory.adapter)
+        repoApiService = RepoApiService(RetrofitAdapterFactory.adapter)
         repoListPresenter = RepoListPresenter(GetRepoInteractor(repoApiService))
     }
 
@@ -72,7 +72,7 @@ class RepoListPresenterUnitTest {
         repoListPresenter.loadFirst()
 
         future.get().let {
-            Assert.assertTrue(it.isNotEmpty())
+            Assert.assertTrue(it.size == 15)
         }
     }
 

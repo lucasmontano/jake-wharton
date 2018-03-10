@@ -5,12 +5,13 @@ import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 import com.lucasmontano.jakewharton.RxImmediateSchedulerRule
 import com.lucasmontano.jakewharton.data.RepoData
+import com.lucasmontano.jakewharton.data.ResponseData
 import com.lucasmontano.jakewharton.networking.RepoApiService
-import com.lucasmontano.jakewharton.networking.RestAdapterFactory
+import com.lucasmontano.jakewharton.networking.RetrofitAdapterFactory
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 import org.junit.*
-import retrofit2.adapter.rxjava2.Result
+import retrofit2.Response
 import java.util.concurrent.CompletableFuture
 
 @RunWith(MockitoJUnitRunner::class)
@@ -25,7 +26,7 @@ class GetRepoInteractorUnitTest {
 
     @Before
     fun setUp() {
-        val repoApiService = RepoApiService(RestAdapterFactory.adapter)
+        val repoApiService = RepoApiService(RetrofitAdapterFactory.adapter)
         getRepoInteractor = GetRepoInteractor(repoApiService = repoApiService)
     }
 
@@ -33,9 +34,9 @@ class GetRepoInteractorUnitTest {
     @Throws(Exception::class)
     fun testGetRepoInteractor() {
 
-        val future = CompletableFuture<Result<List<RepoData>>>()
+        val future = CompletableFuture<Response<ResponseData>>()
 
-        val observer = object: Observer<Result<List<RepoData>>> {
+        val observer = object: Observer<Response<ResponseData>> {
 
             override fun onComplete() {
 
@@ -45,7 +46,7 @@ class GetRepoInteractorUnitTest {
 
             }
 
-            override fun onNext(t: Result<List<RepoData>>) {
+            override fun onNext(t: Response<ResponseData>) {
                 future.complete(t)
             }
 
@@ -56,7 +57,7 @@ class GetRepoInteractorUnitTest {
 
         getRepoInteractor.getRepo(BuildConfig.JAKE_URL, observer)
 
-        future.get().response()?.body()?.forEach { repoData: RepoData -> Assert.assertNotNull(repoData.description) }
+        future.get().body()?.repos?.forEach { repoData: RepoData -> Assert.assertNotNull(repoData.description) }
     }
 
     @After

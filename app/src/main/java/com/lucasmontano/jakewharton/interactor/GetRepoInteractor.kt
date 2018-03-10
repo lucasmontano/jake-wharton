@@ -1,9 +1,9 @@
 package com.lucasmontano.jakewharton.interactor
 
-import com.lucasmontano.jakewharton.data.RepoData
+import com.lucasmontano.jakewharton.data.ResponseData
 import com.lucasmontano.jakewharton.networking.RepoApiService
 import io.reactivex.Observer
-import retrofit2.adapter.rxjava2.Result
+import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,7 +16,7 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
      * @param page The page number.
      * @param observer The Observer.
      */
-    fun getRepo(page: String, observer: Observer<Result<List<RepoData>>>) {
+    fun getRepo(page: String, observer: Observer<Response<ResponseData>>) {
         repoApiService.getRepo(page).subscribe(observer)
     }
 }

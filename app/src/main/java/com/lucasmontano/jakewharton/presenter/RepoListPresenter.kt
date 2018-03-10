@@ -1,13 +1,13 @@
 package com.lucasmontano.jakewharton.presenter
 
 import com.lucasmontano.jakewharton.data.LinkHeaderData
-import com.lucasmontano.jakewharton.data.RepoData
+import com.lucasmontano.jakewharton.data.ResponseData
 import com.lucasmontano.jakewharton.interactor.GetRepoInteractor
 import com.lucasmontano.jakewharton.view.RepoListView
 import io.reactivex.Observer
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import retrofit2.adapter.rxjava2.Result
+import retrofit2.Response
 import javax.inject.Inject
 
 
@@ -46,9 +46,9 @@ class RepoListPresenter @Inject constructor(private val getRepoInteractor: GetRe
         }
     }
 
-    private fun getObserver(): Observer<Result<List<RepoData>>> {
+    private fun getObserver(): Observer<Response<ResponseData>> {
 
-        return object: Observer<Result<List<RepoData>>> {
+        return object: Observer<Response<ResponseData>> {
 
             override fun onComplete() {
                 view.hideNextPageLoading()
@@ -59,19 +59,18 @@ class RepoListPresenter @Inject constructor(private val getRepoInteractor: GetRe
                 compositeDisposable.add(d)
             }
 
-            override fun onNext(result: Result<List<RepoData>>) {
+            override fun onNext(result: Response<ResponseData>) {
 
-                result.response()?.let { response ->
+                result.body()?.repos?.let {
+                    view.showRepos(it)
+                }
 
-                    response.body()?.let { view.showRepos(it) }
+                result.headers().let {
 
-                    response.headers().let { headers ->
+                    it.get("Link")?.let { pagesLinks = LinkHeaderData(it) }
 
-                        headers.get("Link")?.let { pagesLinks = LinkHeaderData(it) }
-
-                        if (pagesLinks.next.isNullOrEmpty()) {
-                            view.warnLastPage()
-                        }
+                    if (pagesLinks.next.isNullOrEmpty()) {
+                        view.warnLastPage()
                     }
                 }
             }
