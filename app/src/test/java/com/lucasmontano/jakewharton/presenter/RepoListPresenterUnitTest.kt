@@ -63,6 +63,10 @@ class RepoListPresenterUnitTest {
             override fun warnLastPage() {
 
             }
+
+            override fun showError(e: Throwable) {
+
+            }
         }
         repoListPresenter.init(repoListView)
         repoListPresenter.loadFirst()
@@ -82,6 +86,10 @@ class RepoListPresenterUnitTest {
         val repoListView : RepoListView = object : RepoListView {
 
             override fun hideTopLoading() {
+
+            }
+
+            override fun showError(e: Throwable) {
 
             }
 
@@ -124,6 +132,10 @@ class RepoListPresenterUnitTest {
 
         val repoListView : RepoListView = object : RepoListView {
 
+            override fun showError(e: Throwable) {
+
+            }
+
             override fun hideTopLoading() {
                 futureLoadFirst.complete(firstLoadCount)
                 repoListPresenter.loadNext()
@@ -157,7 +169,51 @@ class RepoListPresenterUnitTest {
         }
 
         futureLoadFirst.get().let {
-            Assert.assertTrue("Expected one first lage loading but was $it", it == 1)
+            Assert.assertTrue("Expected one first page loading but was $it", it == 1)
+        }
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testError() {
+
+        val future = CompletableFuture<Boolean>()
+
+        val repoListView : RepoListView = object : RepoListView {
+
+            override fun showError(e: Throwable) {
+                future.complete(true)
+            }
+
+            override fun hideTopLoading() {
+
+            }
+
+            override fun warnLastPage() {
+
+            }
+
+            override fun showTopLoading() {
+
+            }
+
+            override fun showNextPageLoading() {
+
+            }
+
+            override fun hideNextPageLoading() {
+
+            }
+
+            override fun showRepos(dataSet: List<RepoData>) {
+
+            }
+        }
+        repoListPresenter.init(repoListView)
+        repoListPresenter.loadFirst()
+
+        future.get().let {
+            Assert.assertTrue("Expected an error :(", it)
         }
     }
 

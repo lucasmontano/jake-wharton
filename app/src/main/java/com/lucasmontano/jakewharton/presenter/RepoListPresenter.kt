@@ -76,7 +76,9 @@ class RepoListPresenter @Inject constructor(private val getRepoInteractor: GetRe
                 }
             }
 
-            override fun onError(e: Throwable) = Unit
+            override fun onError(e: Throwable) {
+                view.showError(e)
+            }
         }
     }
 }

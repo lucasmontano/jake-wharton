@@ -32,7 +32,12 @@ interface RepoListView {
     fun hideTopLoading()
 
     /**
-     * Warn view that reached last page
+     * Warn view that reached last page.
      */
     fun warnLastPage()
+
+    /**
+     * Wand view about an error.
+     */
+    fun showError(e: Throwable)
 }
