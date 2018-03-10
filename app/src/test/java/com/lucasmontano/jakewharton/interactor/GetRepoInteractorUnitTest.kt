@@ -54,8 +54,7 @@ class GetRepoInteractorUnitTest {
             }
         }
 
-        getRepoInteractor.observe(observer = observer)
-        getRepoInteractor.execute(BuildConfig.JAKE_URL)
+        getRepoInteractor.getRepo(BuildConfig.JAKE_URL, observer)
 
         future.get().response()?.body()?.forEach { repoData: RepoData -> Assert.assertNotNull(repoData.description) }
     }

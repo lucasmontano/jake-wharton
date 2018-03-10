@@ -30,7 +30,6 @@ class RepoListPresenterUnitTest {
     fun setUp() {
         repoApiService = RepoApiService(RestAdapterFactory.adapter)
         repoListPresenter = RepoListPresenter(GetRepoInteractor(repoApiService))
-        repoListPresenter.subscribeForNetworkRequests()
     }
 
     @Test
@@ -40,12 +39,33 @@ class RepoListPresenterUnitTest {
         val future = CompletableFuture<List<RepoData>>()
 
         val repoListView : RepoListView = object : RepoListView {
+
+            override fun showTopLoading() {
+
+            }
+
+            override fun hideTopLoading() {
+
+            }
+
+            override fun showNextPageLoading() {
+
+            }
+
+            override fun hideNextPageLoading() {
+
+            }
+
             override fun showRepos(dataSet: List<RepoData>) {
                 future.complete(dataSet)
             }
+
+            override fun warnLastPage() {
+
+            }
         }
         repoListPresenter.init(repoListView)
-        repoListPresenter.loadRepos()
+        repoListPresenter.loadFirst()
 
         future.get().let {
             Assert.assertTrue(it.isNotEmpty())
@@ -56,18 +76,40 @@ class RepoListPresenterUnitTest {
     @Throws(Exception::class)
     fun testPaginationLimits() {
 
-        val future = CompletableFuture<String>()
+        val future = CompletableFuture<Int>()
+        var pages = 0
 
         val repoListView : RepoListView = object : RepoListView {
+
+            override fun hideTopLoading() {
+
+            }
+
+            override fun warnLastPage() {
+                future.complete(pages)
+            }
+
+            override fun showTopLoading() {
+
+            }
+
+            override fun showNextPageLoading() {
+
+            }
+
+            override fun hideNextPageLoading() {
+                repoListPresenter.loadNext()
+            }
+
             override fun showRepos(dataSet: List<RepoData>) {
-                future.complete(repoListPresenter.pagesLinks)
+                pages += 1
             }
         }
         repoListPresenter.init(repoListView)
-        repoListPresenter.loadRepos()
+        repoListPresenter.loadFirst()
 
         future.get().let {
-            Assert.assertNotNull(it)
+            Assert.assertTrue(it == 6)
         }
     }
 
