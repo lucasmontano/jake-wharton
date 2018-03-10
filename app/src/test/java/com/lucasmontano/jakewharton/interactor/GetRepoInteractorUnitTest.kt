@@ -1,6 +1,5 @@
 package com.lucasmontano.jakewharton.interactor
 
-import com.lucasmontano.jakewharton.BuildConfig
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 import com.lucasmontano.jakewharton.RxImmediateSchedulerRule
@@ -11,7 +10,6 @@ import com.lucasmontano.jakewharton.networking.RetrofitAdapterFactory
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 import org.junit.*
-import retrofit2.Response
 import java.util.concurrent.CompletableFuture
 
 @RunWith(MockitoJUnitRunner::class)
@@ -34,9 +32,9 @@ class GetRepoInteractorUnitTest {
     @Throws(Exception::class)
     fun testGetRepoInteractor() {
 
-        val future = CompletableFuture<Response<ResponseData>>()
+        val future = CompletableFuture<ResponseData>()
 
-        val observer = object: Observer<Response<ResponseData>> {
+        val observer = object: Observer<ResponseData> {
 
             override fun onComplete() {
 
@@ -46,7 +44,7 @@ class GetRepoInteractorUnitTest {
 
             }
 
-            override fun onNext(t: Response<ResponseData>) {
+            override fun onNext(t: ResponseData) {
                 future.complete(t)
             }
 
@@ -55,9 +53,10 @@ class GetRepoInteractorUnitTest {
             }
         }
 
-        getRepoInteractor.getRepo(BuildConfig.JAKE_URL, observer)
+        getRepoInteractor.observe(observer)
+        getRepoInteractor.getFirstPage()
 
-        future.get().body()?.repos?.forEach { repoData: RepoData -> Assert.assertNotNull(repoData.description) }
+        future.get()?.repos?.forEach { repoData: RepoData -> Assert.assertNotNull(repoData.description) }
     }
 
     @Test
@@ -66,7 +65,7 @@ class GetRepoInteractorUnitTest {
 
         val future = CompletableFuture<String>()
 
-        val observer = object: Observer<Response<ResponseData>> {
+        val observer = object: Observer<ResponseData> {
 
             override fun onComplete() {
 
@@ -76,8 +75,8 @@ class GetRepoInteractorUnitTest {
 
             }
 
-            override fun onNext(t: Response<ResponseData>) {
-                future.complete(t.message())
+            override fun onNext(t: ResponseData) {
+                future.complete(t.error?.message)
             }
 
             override fun onError(e: Throwable) {
@@ -85,7 +84,10 @@ class GetRepoInteractorUnitTest {
             }
         }
 
-        getRepoInteractor.getRepo("https://api.github.com/user/9999999999/repos?page=1&per_page=15", observer)
+        // "https://api.github.com/user/9999999999/repos?page=1&per_page=15"
+
+        getRepoInteractor.observe(observer)
+        getRepoInteractor.getFirstPage()
 
         future.get().let { Assert.assertEquals("Error Not Found expected but receive $it", "Not Found", it) }
     }

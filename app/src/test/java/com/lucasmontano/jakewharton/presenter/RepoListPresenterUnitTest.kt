@@ -107,11 +107,12 @@ class RepoListPresenterUnitTest {
             }
 
             override fun hideNextPageLoading() {
-                repoListPresenter.loadNext()
+
             }
 
             override fun showRepos(dataSet: List<RepoData>) {
                 pages += 1
+                repoListPresenter.loadNext()
             }
         }
         repoListPresenter.init(repoListView)
