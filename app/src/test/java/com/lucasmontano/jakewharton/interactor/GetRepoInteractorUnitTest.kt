@@ -60,6 +60,36 @@ class GetRepoInteractorUnitTest {
         future.get().body()?.repos?.forEach { repoData: RepoData -> Assert.assertNotNull(repoData.description) }
     }
 
+    @Test
+    @Throws(Exception::class)
+    fun testErrorReturned() {
+
+        val future = CompletableFuture<String>()
+
+        val observer = object: Observer<Response<ResponseData>> {
+
+            override fun onComplete() {
+
+            }
+
+            override fun onSubscribe(d: Disposable) {
+
+            }
+
+            override fun onNext(t: Response<ResponseData>) {
+                future.complete(t.message())
+            }
+
+            override fun onError(e: Throwable) {
+
+            }
+        }
+
+        getRepoInteractor.getRepo("https://api.github.com/user/9999999999/repos?page=1&per_page=15", observer)
+
+        future.get().let { Assert.assertEquals("Error Not Found expected but receive $it", "Not Found", it) }
+    }
+
     @After
     fun tearDown() {
 

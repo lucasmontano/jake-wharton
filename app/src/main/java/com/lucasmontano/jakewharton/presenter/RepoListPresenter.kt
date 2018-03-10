@@ -1,5 +1,6 @@
 package com.lucasmontano.jakewharton.presenter
 
+import com.lucasmontano.jakewharton.data.ErrorData
 import com.lucasmontano.jakewharton.data.LinkHeaderData
 import com.lucasmontano.jakewharton.data.ResponseData
 import com.lucasmontano.jakewharton.interactor.GetRepoInteractor
@@ -17,6 +18,8 @@ class RepoListPresenter @Inject constructor(private val getRepoInteractor: GetRe
     private var pagesLinks: LinkHeaderData = LinkHeaderData("")
     private var compositeDisposable: CompositeDisposable = CompositeDisposable()
 
+    fun getPagesLinks(): LinkHeaderData {return pagesLinks}
+
     fun init(view: RepoListView) {
         this.view = view
     }
@@ -31,12 +34,12 @@ class RepoListPresenter @Inject constructor(private val getRepoInteractor: GetRe
         view.showTopLoading()
 
         // Request first page.
-        getRepoInteractor.getRepo(pagesLinks.first, getObserver())
+        getRepoInteractor.getRepo(getPagesLinks().first, getObserver())
     }
 
     fun loadNext() {
 
-        pagesLinks.next?.let {
+        getPagesLinks().next?.let {
 
             // Show loading if we have next page.
             view.showNextPageLoading()
@@ -65,6 +68,10 @@ class RepoListPresenter @Inject constructor(private val getRepoInteractor: GetRe
                     view.showRepos(it)
                 }
 
+                result.body()?.error?.let {
+                    view.showError(it)
+                }
+
                 result.headers().let {
 
                     it.get("Link")?.let { pagesLinks = LinkHeaderData(it) }
@@ -76,7 +83,7 @@ class RepoListPresenter @Inject constructor(private val getRepoInteractor: GetRe
             }
 
             override fun onError(e: Throwable) {
-                view.showError(e)
+                view.showError(ErrorData("", ""))
             }
         }
     }

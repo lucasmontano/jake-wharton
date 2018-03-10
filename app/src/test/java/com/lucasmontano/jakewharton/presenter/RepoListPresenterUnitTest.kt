@@ -7,6 +7,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 import com.lucasmontano.jakewharton.RxImmediateSchedulerRule
+import com.lucasmontano.jakewharton.data.ErrorData
 import com.lucasmontano.jakewharton.data.RepoData
 import com.lucasmontano.jakewharton.interactor.GetRepoInteractor
 import com.lucasmontano.jakewharton.networking.RepoApiService
@@ -64,7 +65,7 @@ class RepoListPresenterUnitTest {
 
             }
 
-            override fun showError(e: Throwable) {
+            override fun showError(e: ErrorData) {
 
             }
         }
@@ -89,7 +90,7 @@ class RepoListPresenterUnitTest {
 
             }
 
-            override fun showError(e: Throwable) {
+            override fun showError(e: ErrorData) {
 
             }
 
@@ -132,7 +133,7 @@ class RepoListPresenterUnitTest {
 
         val repoListView : RepoListView = object : RepoListView {
 
-            override fun showError(e: Throwable) {
+            override fun showError(e: ErrorData) {
 
             }
 
@@ -170,50 +171,6 @@ class RepoListPresenterUnitTest {
 
         futureLoadFirst.get().let {
             Assert.assertTrue("Expected one first page loading but was $it", it == 1)
-        }
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun testError() {
-
-        val future = CompletableFuture<Boolean>()
-
-        val repoListView : RepoListView = object : RepoListView {
-
-            override fun showError(e: Throwable) {
-                future.complete(true)
-            }
-
-            override fun hideTopLoading() {
-
-            }
-
-            override fun warnLastPage() {
-
-            }
-
-            override fun showTopLoading() {
-
-            }
-
-            override fun showNextPageLoading() {
-
-            }
-
-            override fun hideNextPageLoading() {
-
-            }
-
-            override fun showRepos(dataSet: List<RepoData>) {
-
-            }
-        }
-        repoListPresenter.init(repoListView)
-        repoListPresenter.loadFirst()
-
-        future.get().let {
-            Assert.assertTrue("Expected an error :(", it)
         }
     }
 

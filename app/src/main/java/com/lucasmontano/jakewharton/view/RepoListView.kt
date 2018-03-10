@@ -1,5 +1,6 @@
 package com.lucasmontano.jakewharton.view
 
+import com.lucasmontano.jakewharton.data.ErrorData
 import com.lucasmontano.jakewharton.data.RepoData
 
 interface RepoListView {
@@ -39,5 +40,5 @@ interface RepoListView {
     /**
      * Wand view about an error.
      */
-    fun showError(e: Throwable)
+    fun showError(e: ErrorData)
 }

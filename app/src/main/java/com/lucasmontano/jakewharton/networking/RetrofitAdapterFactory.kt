@@ -13,6 +13,7 @@ import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonElement
 import com.google.gson.JsonDeserializer
 import com.google.gson.reflect.TypeToken
+import com.lucasmontano.jakewharton.data.ErrorData
 import com.lucasmontano.jakewharton.data.RepoData
 import java.lang.reflect.Type
 
@@ -45,7 +46,7 @@ object RetrofitAdapterFactory {
         @Throws(JsonParseException::class)
         override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): ResponseData {
 
-            val response = ResponseData(null, null, null)
+            val response = ResponseData(null, null)
 
             if (json.isJsonArray) {
                 // It is an array, parse the RepoData.
@@ -53,9 +54,8 @@ object RetrofitAdapterFactory {
                 response.repos = context.deserialize(json, responseType)
             } else {
                 // Not an array, parse out the error info.
-                val `object` = json.asJsonObject
-                response.documentationUrl = `object`.getAsJsonPrimitive("documentation_url").asString
-                response.message = `object`.getAsJsonPrimitive("message").asString
+                val responseType = object : TypeToken<ErrorData>() {}.type
+                response.error = context.deserialize(json, responseType)
             }
             return response
         }
