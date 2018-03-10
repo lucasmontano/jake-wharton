@@ -109,7 +109,55 @@ class RepoListPresenterUnitTest {
         repoListPresenter.loadFirst()
 
         future.get().let {
-            Assert.assertTrue(it == 6)
+            Assert.assertTrue(it == 7)
+        }
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testPaginationLoadings() {
+
+        val futureLoadNext = CompletableFuture<Int>()
+        val futureLoadFirst = CompletableFuture<Int>()
+        var nextLoadCount = 0
+        var firstLoadCount = 0
+
+        val repoListView : RepoListView = object : RepoListView {
+
+            override fun hideTopLoading() {
+                futureLoadFirst.complete(firstLoadCount)
+                repoListPresenter.loadNext()
+            }
+
+            override fun warnLastPage() {
+                futureLoadNext.complete(nextLoadCount)
+            }
+
+            override fun showTopLoading() {
+                firstLoadCount += 1
+            }
+
+            override fun showNextPageLoading() {
+                nextLoadCount += 1
+            }
+
+            override fun hideNextPageLoading() {
+                repoListPresenter.loadNext()
+            }
+
+            override fun showRepos(dataSet: List<RepoData>) {
+
+            }
+        }
+        repoListPresenter.init(repoListView)
+        repoListPresenter.loadFirst()
+
+        futureLoadNext.get().let {
+            Assert.assertTrue("Expected 6 next page loading but was $it", it == 6)
+        }
+
+        futureLoadFirst.get().let {
+            Assert.assertTrue("Expected one first lage loading but was $it", it == 1)
         }
     }
 

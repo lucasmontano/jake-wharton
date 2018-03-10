@@ -25,6 +25,15 @@ class RepoListPresenter @Inject constructor(private val getRepoInteractor: GetRe
         compositeDisposable.run { dispose() }
     }
 
+    fun loadFirst() {
+
+        // Show top loading.
+        view.showTopLoading()
+
+        // Request first page.
+        getRepoInteractor.getRepo(pagesLinks.first, getObserver())
+    }
+
     fun loadNext() {
 
         pagesLinks.next?.let {
@@ -35,15 +44,6 @@ class RepoListPresenter @Inject constructor(private val getRepoInteractor: GetRe
             // Request next page.
             getRepoInteractor.getRepo(it, getObserver())
         }
-    }
-
-    fun loadFirst() {
-
-        // Show top loading.
-        view.showTopLoading()
-
-        // Request first page.
-        getRepoInteractor.getRepo(pagesLinks.first, getObserver())
     }
 
     private fun getObserver(): Observer<Result<List<RepoData>>> {
@@ -63,6 +63,8 @@ class RepoListPresenter @Inject constructor(private val getRepoInteractor: GetRe
 
                 result.response()?.let { response ->
 
+                    response.body()?.let { view.showRepos(it) }
+
                     response.headers().let { headers ->
 
                         headers.get("Link")?.let { pagesLinks = LinkHeaderData(it) }
@@ -71,8 +73,6 @@ class RepoListPresenter @Inject constructor(private val getRepoInteractor: GetRe
                             view.warnLastPage()
                         }
                     }
-
-                    response.body()?.let { view.showRepos(it) }
                 }
             }
 
