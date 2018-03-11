@@ -1,6 +1,7 @@
 package com.lucasmontano.jakewharton.interactor
 
 import com.lucasmontano.jakewharton.BuildConfig
+import com.lucasmontano.jakewharton.data.ErrorData
 import com.lucasmontano.jakewharton.data.LinkHeaderData
 import com.lucasmontano.jakewharton.data.ResponseData
 import com.lucasmontano.jakewharton.networking.RepoApiService
@@ -12,12 +13,18 @@ import io.reactivex.subjects.PublishSubject
 import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.google.gson.Gson
 
 @Singleton
 class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiService) {
 
     private val subscription: PublishSubject<ResponseData> = PublishSubject.create()
     private var pagesLinks: LinkHeaderData = LinkHeaderData("")
+    private var gitHubUserBaseUrl: String = BuildConfig.JAKE_URL
+
+    fun setGitHubUserBaseUrl(url: String) {
+        gitHubUserBaseUrl = url
+    }
 
     /**
      * Observe is added to Interactor PublishSubject.
@@ -44,7 +51,7 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
      * Request the first page.
      */
     fun getFirstPage() {
-        execute(BuildConfig.JAKE_URL)
+        execute(gitHubUserBaseUrl)
     }
 
     /**
@@ -80,10 +87,19 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
             if (subscription.hasObservers()) {
 
                 result.headers().let {
-                    it.get("Link")?.let { pagesLinks = LinkHeaderData(it) }
+                    it.get("Link")?.let {
+                        pagesLinks = LinkHeaderData(it)
+                    }
                 }
 
-                result.body()?.let { subscription.onNext(it) }
+                result.body()?.let {
+                    subscription.onNext(it)
+                }
+
+                result.errorBody()?.let {
+                    val errorData = Gson().fromJson(it.string(), ErrorData::class.java)
+                    subscription.onNext(ResponseData(null, errorData))
+                }
             }
         }
 
