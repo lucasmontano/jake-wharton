@@ -61,37 +61,6 @@ class GetRepoInteractorUnitTest {
 
     @Test
     @Throws(Exception::class)
-    fun testRealmCache() {
-
-        val future = CompletableFuture<ResponseData>()
-
-        val observer = object: Observer<ResponseData> {
-
-            override fun onComplete() {
-
-            }
-
-            override fun onSubscribe(d: Disposable) {
-
-            }
-
-            override fun onNext(t: ResponseData) {
-                future.complete(t)
-            }
-
-            override fun onError(e: Throwable) {
-
-            }
-        }
-
-        getRepoInteractor.observe(observer)
-        getRepoInteractor.getFirstPage()
-
-        future.get()?.repos?.forEach { repoData: RepoData -> Assert.assertNotNull(repoData.description) }
-    }
-
-    @Test
-    @Throws(Exception::class)
     fun testErrorReturned() {
 
         val future = CompletableFuture<String>()

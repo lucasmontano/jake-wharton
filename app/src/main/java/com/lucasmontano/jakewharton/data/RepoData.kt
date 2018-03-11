@@ -3,10 +3,13 @@ package com.lucasmontano.jakewharton.data
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
 
-open class RepoData(@PrimaryKey val id: String) : RealmObject() {
+open class RepoData : RealmObject() {
 
-    var name: String? = null
-    var description: String? = null
-    var htmlUrl: String? = null
-    var language: String? = null
+    @PrimaryKey
+    lateinit var id: String
+
+    open var name: String? = null
+    open var description: String? = null
+    open var htmlUrl: String? = null
+    open var language: String? = null
 }

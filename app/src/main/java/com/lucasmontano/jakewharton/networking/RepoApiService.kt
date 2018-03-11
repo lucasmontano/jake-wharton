@@ -6,6 +6,7 @@ import com.lucasmontano.jakewharton.data.ResponseData
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import io.realm.Realm
 import retrofit2.HttpException
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -25,15 +26,27 @@ class RepoApiService(retrofit: Retrofit) {
 
     private fun processResponse(response: List<RepoData>) {
 
+        val realm = Realm.getDefaultInstance()
+
+        realm.beginTransaction()
+
+        response.forEach {
+
+            realm.copyToRealmOrUpdate(it)
+        }
+
+        realm.commitTransaction()
     }
 
     private fun onError(throwable: Throwable) {
 
         if (throwable is HttpException) {
+
             // We had non-2XX http error
             Log.e("RepoApiServiceError", "HTTPException: " + throwable.code())
         }
         if (throwable is IOException) {
+
             // A network or conversion error happened
             Log.e("RepoApiServiceError", "IOException: " + throwable.message)
         }

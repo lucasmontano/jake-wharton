@@ -3,7 +3,7 @@ package com.lucasmontano.jakewharton.presenter
 import com.lucasmontano.jakewharton.data.ErrorData
 import com.lucasmontano.jakewharton.data.ResponseData
 import com.lucasmontano.jakewharton.interactor.GetRepoInteractor
-import com.lucasmontano.jakewharton.view.RepoListView
+import com.lucasmontano.jakewharton.view.interfaces.RepoListView
 import io.reactivex.Observer
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable

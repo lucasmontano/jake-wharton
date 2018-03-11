@@ -7,7 +7,7 @@ import com.lucasmontano.jakewharton.di.modules.AppModule
 
 class JakeApp : Application() {
 
-    private val component: AppComponent by lazy {
+    val component: AppComponent by lazy {
         DaggerAppComponent
             .builder()
             .appModule(AppModule(this))

@@ -1,4 +1,4 @@
-package com.lucasmontano.jakewharton.view
+package com.lucasmontano.jakewharton.view.interfaces
 
 import com.lucasmontano.jakewharton.data.ErrorData
 import com.lucasmontano.jakewharton.data.RepoData
