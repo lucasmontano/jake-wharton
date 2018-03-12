@@ -23,6 +23,9 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
     private val subscription: PublishSubject<ResponseData> = PublishSubject.create()
     private var pagesLinks: LinkHeaderData = LinkHeaderData("")
     private var gitHubUserBaseUrl: String = BuildConfig.JAKE_URL
+    private var isUsingCache: Boolean = false
+
+    private fun isFirstPageRequest() = pagesLinks.prev == null
 
     fun setGitHubUserBaseUrl(url: String) {
         gitHubUserBaseUrl = url
@@ -62,10 +65,15 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
      * @return Boolean has next page
      */
     fun getNextPage() : Boolean {
+
+        // Cache do not have next page.
+        if (isUsingCache) return false
+
         pagesLinks.next?.let {
             execute(it)
             return true
         }
+
         return false
     }
 
@@ -73,7 +81,6 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
      * Get repositories Observer.
      *
      * The GetRepoObserver will observe the RepoApiService Observable.
-     *
      */
     inner class GetRepoObserver : Observer<Response<ResponseData>> {
 
@@ -101,13 +108,14 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
                 // Repo List.
                 result.body()?.let {
                     subscription.onNext(it)
+                    isUsingCache = false
                 }
 
                 // GitHub Error with link to documentation.
                 result.errorBody()?.let {
 
-                    // Load from Realm.
-                    loadFromRealm()
+                    // Fetch from Realm only in first page request.
+                    if (isFirstPageRequest()) loadFromRealm()
 
                     // Show the error.
                     val errorData = Gson().fromJson(it.string(), ErrorData::class.java)
@@ -119,7 +127,15 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
         override fun onError(e: Throwable) {
 
             if (subscription.hasObservers()) {
-                loadFromRealm()
+
+                // Fetch from Realm only in first page request.
+                if (isFirstPageRequest()) {
+
+                    loadFromRealm()
+                } else {
+
+                    publishError()
+                }
             }
         }
     }
@@ -130,7 +146,6 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
 
         if (realmResults.isLoaded) {
 
-
             // Load Repos from Realm.
             val repos = ArrayList<RepoData>()
             realmResults.forEach {
@@ -140,12 +155,21 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
             val responseData = ResponseData(repos, null)
             subscription.onNext(responseData)
 
+            isUsingCache = repos.isNotEmpty()
+
         } else {
 
-            // Generic error.
-            val errorData = ErrorData("Oops! We are facing an error :(", null)
-            val responseData = ResponseData(null, errorData)
-            subscription.onNext(responseData)
+            publishError()
         }
+    }
+
+    /**
+     * Publish Generic Error.
+     */
+    private fun publishError() {
+
+        val errorData = ErrorData("Oops! We are facing an error :(", null)
+        val responseData = ResponseData(null, errorData)
+        subscription.onNext(responseData)
     }
 }
