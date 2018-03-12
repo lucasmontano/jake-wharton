@@ -77,13 +77,7 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
      */
     inner class GetRepoObserver : Observer<Response<ResponseData>> {
 
-        override fun onComplete() {
-            if (subscription.hasObservers()) {
-                if (pagesLinks.next.isNullOrEmpty()) {
-                    subscription.onComplete()
-                }
-            }
-        }
+        override fun onComplete() {}
 
         override fun onSubscribe(d: Disposable) {}
 
@@ -111,6 +105,11 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
 
                 // GitHub Error with link to documentation.
                 result.errorBody()?.let {
+
+                    // Load from Realm.
+                    loadFromRealm()
+
+                    // Show the error.
                     val errorData = Gson().fromJson(it.string(), ErrorData::class.java)
                     subscription.onNext(ResponseData(null, errorData))
                 }
@@ -120,29 +119,33 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
         override fun onError(e: Throwable) {
 
             if (subscription.hasObservers()) {
-
-                val realmResults = realm.where(RepoData::class.java).findAll()
-
-                if (realmResults.isLoaded) {
-
-
-                    // Load Repos from Realm.
-                    val repos = ArrayList<RepoData>()
-                    realmResults.forEach {
-                        repos.add(it)
-                    }
-
-                    val responseData = ResponseData(repos, null)
-                    subscription.onNext(responseData)
-
-                } else {
-
-                    // Generic error.
-                    val errorData = ErrorData(null, null)
-                    val responseData = ResponseData(null, errorData)
-                    subscription.onNext(responseData)
-                }
+                loadFromRealm()
             }
+        }
+    }
+
+    private fun loadFromRealm() {
+
+        val realmResults = realm.where(RepoData::class.java).findAll()
+
+        if (realmResults.isLoaded) {
+
+
+            // Load Repos from Realm.
+            val repos = ArrayList<RepoData>()
+            realmResults.forEach {
+                repos.add(it)
+            }
+
+            val responseData = ResponseData(repos, null)
+            subscription.onNext(responseData)
+
+        } else {
+
+            // Generic error.
+            val errorData = ErrorData("Oops! We are facing an error :(", null)
+            val responseData = ResponseData(null, errorData)
+            subscription.onNext(responseData)
         }
     }
 }

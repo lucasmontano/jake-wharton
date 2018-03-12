@@ -2,6 +2,7 @@ package com.lucasmontano.jakewharton.view.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -18,6 +19,9 @@ import com.lucasmontano.jakewharton.view.adapters.RepoRecyclerViewAdapter
 import com.lucasmontano.jakewharton.view.interfaces.RepoListView
 import kotlinx.android.synthetic.main.fragment_repo_list.view.*
 import javax.inject.Inject
+import android.content.Intent
+import android.net.Uri
+
 
 class RepoListFragment : Fragment(), RepoListView {
 
@@ -50,9 +54,14 @@ class RepoListFragment : Fragment(), RepoListView {
                 val totalItemCount = layoutManager.itemCount
                 val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
 
+                // Load next page.
                 if ( ! adapter.isLoading && totalItemCount <= (lastVisibleItem + adapter.visibleThreshold)) {
                     presenter.loadNext()
                 }
+
+                // Enable swipeRefresh only at top.
+                val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
+                view.swipeRefreshLayout_repos.isEnabled = firstVisiblePosition == 0
             }
         })
 
@@ -126,6 +135,25 @@ class RepoListFragment : Fragment(), RepoListView {
 
     override fun showError(e: ErrorData) {
 
+        // Show error message and link to documentation (if any link)
+        view?.let { view ->
+
+            e.message?.let { message ->
+
+                val snackBar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE)
+
+                e.documentation_url?.let { url ->
+
+                    snackBar.setAction(R.string.detail) {
+
+                        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        startActivity(browserIntent)
+                    }
+                }
+
+                snackBar.show()
+            }
+        }
     }
 
     interface OnListFragmentInteractionListener {
