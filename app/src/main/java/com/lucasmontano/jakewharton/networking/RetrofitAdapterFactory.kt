@@ -27,7 +27,12 @@ object RetrofitAdapterFactory {
         val interceptor = HttpLoggingInterceptor()
         interceptor.level = HttpLoggingInterceptor.Level.BODY
 
-        val okHttpClient = OkHttpClient.Builder().addInterceptor(interceptor).build()
+        /**
+         * @TODO SSL handshake terminating in Android 4.4.4 (tested in Moto E device)
+         */
+        val okHttpClient = OkHttpClient.Builder()
+            .addInterceptor(interceptor)
+            .build()
 
         val gson = GsonBuilder().registerTypeAdapter(
             ResponseData::class.java, ResponseDeserializer()

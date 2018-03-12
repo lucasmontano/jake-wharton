@@ -6,7 +6,6 @@ import com.lucasmontano.jakewharton.RxImmediateSchedulerRule
 import com.lucasmontano.jakewharton.data.RepoData
 import com.lucasmontano.jakewharton.data.ResponseData
 import com.lucasmontano.jakewharton.networking.RepoApiService
-import com.lucasmontano.jakewharton.networking.RetrofitAdapterFactory
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 import org.junit.*
@@ -24,7 +23,7 @@ class GetRepoInteractorUnitTest {
 
     @Before
     fun setUp() {
-        val repoApiService = RepoApiService(RetrofitAdapterFactory.adapter)
+        val repoApiService = RepoApiService()
         getRepoInteractor = GetRepoInteractor(repoApiService = repoApiService)
     }
 

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,8 +28,11 @@ class RepoListFragment : Fragment(), RepoListView {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
         (activity!!.applicationContext as JakeApp).component.inject(this)
+
         presenter.init(this)
+        presenter.loadFirst()
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -71,11 +75,11 @@ class RepoListFragment : Fragment(), RepoListView {
     }
 
     override fun showTopLoading() {
-
+        Log.d("Loading", "Show")
     }
 
     override fun hideTopLoading() {
-
+        Log.d("Loading", "Hide")
     }
 
     override fun warnLastPage() {

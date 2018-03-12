@@ -14,6 +14,8 @@ import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.google.gson.Gson
+import com.lucasmontano.jakewharton.data.RepoData
+import io.realm.Realm
 
 @Singleton
 class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiService) {
@@ -106,7 +108,24 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
         override fun onError(e: Throwable) {
 
             if (subscription.hasObservers()) {
-                subscription.onError(e)
+
+                val realm = Realm.getDefaultInstance()
+                val realmResults = realm.where(RepoData::class.java).findAll()
+
+                if (realmResults.isLoaded) {
+
+                    val repos = ArrayList<RepoData>()
+
+                    realmResults.forEach {
+                        repos.add(it)
+                    }
+
+                    val responseData = ResponseData(repos, null)
+                    subscription.onNext(responseData)
+
+                } else {
+                    subscription.onError(e)
+                }
             }
         }
     }

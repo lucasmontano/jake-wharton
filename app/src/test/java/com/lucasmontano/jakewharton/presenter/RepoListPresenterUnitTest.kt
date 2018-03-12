@@ -11,7 +11,6 @@ import com.lucasmontano.jakewharton.data.ErrorData
 import com.lucasmontano.jakewharton.data.RepoData
 import com.lucasmontano.jakewharton.interactor.GetRepoInteractor
 import com.lucasmontano.jakewharton.networking.RepoApiService
-import com.lucasmontano.jakewharton.networking.RetrofitAdapterFactory
 import com.lucasmontano.jakewharton.view.interfaces.RepoListView
 import org.junit.ClassRule
 import java.util.concurrent.CompletableFuture
@@ -29,7 +28,7 @@ class RepoListPresenterUnitTest {
 
     @Before
     fun setUp() {
-        repoApiService = RepoApiService(RetrofitAdapterFactory.adapter)
+        repoApiService = RepoApiService()
         repoListPresenter = RepoListPresenter(GetRepoInteractor(repoApiService))
     }
 

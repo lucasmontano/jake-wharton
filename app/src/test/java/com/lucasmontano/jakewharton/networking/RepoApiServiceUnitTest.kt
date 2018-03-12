@@ -25,7 +25,7 @@ class RepoApiServiceUnitTest {
 
     @Before
     fun setUp() {
-        repoApiService = RepoApiService(RetrofitAdapterFactory.adapter)
+        repoApiService = RepoApiService()
     }
 
     @Test

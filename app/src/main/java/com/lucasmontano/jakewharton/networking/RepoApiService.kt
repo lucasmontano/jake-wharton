@@ -9,12 +9,11 @@ import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
 import retrofit2.HttpException
 import retrofit2.Response
-import retrofit2.Retrofit
 import java.io.IOException
 
-class RepoApiService(retrofit: Retrofit) {
+class RepoApiService {
 
-    private var repoAPI: RepoAPI = retrofit.create<RepoAPI>(RepoAPI::class.java)
+    private var repoAPI: RepoAPI = RetrofitAdapterFactory.adapter.create<RepoAPI>(RepoAPI::class.java)
 
     fun getRepo(url: String) : Observable<Response<ResponseData>> {
         return repoAPI.getRepo(url)
