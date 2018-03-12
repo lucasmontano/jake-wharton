@@ -10,6 +10,7 @@ import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 import com.lucasmontano.jakewharton.RxImmediateSchedulerRule
 import com.lucasmontano.jakewharton.data.ResponseData
+import io.realm.Realm
 import org.junit.ClassRule
 import retrofit2.Response
 
@@ -25,7 +26,7 @@ class RepoApiServiceUnitTest {
 
     @Before
     fun setUp() {
-        repoApiService = RepoApiService()
+        repoApiService = RepoApiService(Realm.getDefaultInstance())
     }
 
     @Test

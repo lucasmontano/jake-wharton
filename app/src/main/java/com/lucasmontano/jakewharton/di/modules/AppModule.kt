@@ -6,6 +6,7 @@ import com.lucasmontano.jakewharton.networking.RepoApiService
 import com.lucasmontano.jakewharton.presenter.RepoListPresenter
 import dagger.Module
 import dagger.Provides
+import io.realm.Realm
 import javax.inject.Singleton
 
 @Module
@@ -15,11 +16,11 @@ class AppModule(private val app: JakeApp) {
     fun provideApplication() = app
 
     @Provides
-    fun provideRepoApiService() = RepoApiService()
+    fun provideRepoApiService() = RepoApiService(Realm.getDefaultInstance())
 
     @Provides @Singleton
-    fun provideGetRepoInteractor(repoApiService : RepoApiService) = GetRepoInteractor(repoApiService = repoApiService)
+    fun provideGetRepoInteractor(repoApiService : RepoApiService) = GetRepoInteractor(repoApiService, Realm.getDefaultInstance())
 
     @Provides
-    fun provideRepoListPresenter(getRepoInteractor : GetRepoInteractor) = RepoListPresenter(getRepoInteractor = getRepoInteractor)
+    fun provideRepoListPresenter(getRepoInteractor : GetRepoInteractor) = RepoListPresenter(getRepoInteractor)
 }

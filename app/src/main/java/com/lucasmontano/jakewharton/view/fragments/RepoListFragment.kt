@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +16,7 @@ import com.lucasmontano.jakewharton.data.RepoData
 import com.lucasmontano.jakewharton.presenter.RepoListPresenter
 import com.lucasmontano.jakewharton.view.adapters.RepoRecyclerViewAdapter
 import com.lucasmontano.jakewharton.view.interfaces.RepoListView
+import kotlinx.android.synthetic.main.fragment_repo_list.view.*
 import javax.inject.Inject
 
 class RepoListFragment : Fragment(), RepoListView {
@@ -25,6 +25,7 @@ class RepoListFragment : Fragment(), RepoListView {
 
     private var mListener: OnListFragmentInteractionListener? = null
     private val adapter = RepoRecyclerViewAdapter(mListener)
+    private lateinit var layoutManager: LinearLayoutManager
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -35,12 +36,29 @@ class RepoListFragment : Fragment(), RepoListView {
         presenter.loadFirst()
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater!!.inflate(R.layout.fragment_repo_list, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val view = inflater.inflate(R.layout.fragment_repo_list, container, false)
 
-        if (view is RecyclerView) {
-            view.layoutManager = LinearLayoutManager(view.getContext())
-            view.adapter = adapter
+        layoutManager = LinearLayoutManager(view.context)
+        view.recyclerView_repos.layoutManager = layoutManager
+        view.recyclerView_repos.adapter = adapter
+        view.recyclerView_repos.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+
+            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                val totalItemCount = layoutManager.itemCount
+                val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+
+                if ( ! adapter.isLoading && totalItemCount <= (lastVisibleItem + adapter.visibleThreshold)) {
+                    presenter.loadNext()
+                }
+            }
+        })
+
+        view.swipeRefreshLayout_repos.setOnRefreshListener {
+
+            if ( ! adapter.isLoading) presenter.loadFirst() else view.swipeRefreshLayout_repos.isRefreshing = false
         }
 
         return view
@@ -62,28 +80,48 @@ class RepoListFragment : Fragment(), RepoListView {
     }
 
     override fun showRepos(dataSet: List<RepoData>) {
-        adapter.setDataSet(dataSet)
-        adapter.notifyDataSetChanged()
+
+        adapter.run {
+            adapter.dataSet = dataSet
+            notifyDataSetChanged()
+        }
     }
 
     override fun showNextPageLoading() {
 
+        view?.swipeRefreshLayout_repos?.isEnabled = false
+
+        adapter.run {
+            isLoading = true
+            notifyDataSetChanged()
+        }
     }
 
     override fun hideNextPageLoading() {
 
+        view?.swipeRefreshLayout_repos?.isEnabled = true
+
+        adapter.run {
+            isLoading = false
+            notifyDataSetChanged()
+        }
     }
 
     override fun showTopLoading() {
-        Log.d("Loading", "Show")
+        view?.swipeRefreshLayout_repos?.isRefreshing = true
+
+        // overScroll disabled if would have is next pages.
+        view?.recyclerView_repos?.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
     }
 
     override fun hideTopLoading() {
-        Log.d("Loading", "Hide")
+        view?.swipeRefreshLayout_repos?.isRefreshing = false
     }
 
     override fun warnLastPage() {
 
+        // overScroll when is the last page.
+        view?.recyclerView_repos?.overScrollMode = RecyclerView.OVER_SCROLL_ALWAYS
     }
 
     override fun showError(e: ErrorData) {

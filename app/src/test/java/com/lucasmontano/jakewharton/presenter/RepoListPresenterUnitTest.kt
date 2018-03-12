@@ -12,6 +12,7 @@ import com.lucasmontano.jakewharton.data.RepoData
 import com.lucasmontano.jakewharton.interactor.GetRepoInteractor
 import com.lucasmontano.jakewharton.networking.RepoApiService
 import com.lucasmontano.jakewharton.view.interfaces.RepoListView
+import io.realm.Realm
 import org.junit.ClassRule
 import java.util.concurrent.CompletableFuture
 
@@ -28,8 +29,8 @@ class RepoListPresenterUnitTest {
 
     @Before
     fun setUp() {
-        repoApiService = RepoApiService()
-        repoListPresenter = RepoListPresenter(GetRepoInteractor(repoApiService))
+        repoApiService = RepoApiService(Realm.getDefaultInstance())
+        repoListPresenter = RepoListPresenter(GetRepoInteractor(repoApiService, Realm.getDefaultInstance()))
     }
 
     @Test

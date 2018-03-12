@@ -18,7 +18,7 @@ import com.lucasmontano.jakewharton.data.RepoData
 import io.realm.Realm
 
 @Singleton
-class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiService) {
+class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiService, private val realm: Realm) {
 
     private val subscription: PublishSubject<ResponseData> = PublishSubject.create()
     private var pagesLinks: LinkHeaderData = LinkHeaderData("")
@@ -69,10 +69,15 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
         return false
     }
 
+    /**
+     * Get repositories Observer.
+     *
+     * The GetRepoObserver will observe the RepoApiService Observable.
+     *
+     */
     inner class GetRepoObserver : Observer<Response<ResponseData>> {
 
         override fun onComplete() {
-
             if (subscription.hasObservers()) {
                 if (pagesLinks.next.isNullOrEmpty()) {
                     subscription.onComplete()
@@ -80,24 +85,31 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
             }
         }
 
-        override fun onSubscribe(d: Disposable) {
-
-        }
+        override fun onSubscribe(d: Disposable) {}
 
         override fun onNext(result: Response<ResponseData>) {
 
             if (subscription.hasObservers()) {
 
+                /*
+                 * GitHub use LinkHeader:
+                 * The Link: header in HTTP allows the server to point an interested client
+                 * to another resource containing metadata about the requested resource.
+                 *
+                 * {@see https://www.w3.org/wiki/LinkHeader W3}
+                 */
                 result.headers().let {
                     it.get("Link")?.let {
                         pagesLinks = LinkHeaderData(it)
                     }
                 }
 
+                // Repo List.
                 result.body()?.let {
                     subscription.onNext(it)
                 }
 
+                // GitHub Error with link to documentation.
                 result.errorBody()?.let {
                     val errorData = Gson().fromJson(it.string(), ErrorData::class.java)
                     subscription.onNext(ResponseData(null, errorData))
@@ -109,13 +121,13 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
 
             if (subscription.hasObservers()) {
 
-                val realm = Realm.getDefaultInstance()
                 val realmResults = realm.where(RepoData::class.java).findAll()
 
                 if (realmResults.isLoaded) {
 
-                    val repos = ArrayList<RepoData>()
 
+                    // Load Repos from Realm.
+                    val repos = ArrayList<RepoData>()
                     realmResults.forEach {
                         repos.add(it)
                     }
@@ -124,7 +136,11 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
                     subscription.onNext(responseData)
 
                 } else {
-                    subscription.onError(e)
+
+                    // Generic error.
+                    val errorData = ErrorData(null, null)
+                    val responseData = ResponseData(null, errorData)
+                    subscription.onNext(responseData)
                 }
             }
         }

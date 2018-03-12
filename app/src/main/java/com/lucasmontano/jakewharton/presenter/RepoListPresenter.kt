@@ -1,6 +1,7 @@
 package com.lucasmontano.jakewharton.presenter
 
 import com.lucasmontano.jakewharton.data.ErrorData
+import com.lucasmontano.jakewharton.data.RepoData
 import com.lucasmontano.jakewharton.data.ResponseData
 import com.lucasmontano.jakewharton.interactor.GetRepoInteractor
 import com.lucasmontano.jakewharton.view.interfaces.RepoListView
@@ -12,6 +13,7 @@ import javax.inject.Inject
 
 class RepoListPresenter @Inject constructor(private val getRepoInteractor: GetRepoInteractor) : BaseNetworkingPresenter {
 
+    private var dataSet: ArrayList<RepoData> = ArrayList()
     private lateinit var view: RepoListView
     private var compositeDisposable: CompositeDisposable = CompositeDisposable()
 
@@ -31,6 +33,9 @@ class RepoListPresenter @Inject constructor(private val getRepoInteractor: GetRe
 
         // Request first page.
         getRepoInteractor.getFirstPage()
+
+        // Clear current dataSet.
+        dataSet.clear()
     }
 
     fun loadNext() {
@@ -63,7 +68,8 @@ class RepoListPresenter @Inject constructor(private val getRepoInteractor: GetRe
                 view.hideTopLoading()
 
                 result.repos?.let {
-                    view.showRepos(it)
+                    dataSet.addAll(it)
+                    view.showRepos(dataSet)
                 }
 
                 result.error?.let {
