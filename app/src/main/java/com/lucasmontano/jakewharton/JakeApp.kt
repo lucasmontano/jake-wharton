@@ -6,18 +6,21 @@ import com.lucasmontano.jakewharton.di.components.DaggerAppComponent
 import com.lucasmontano.jakewharton.di.modules.AppModule
 import io.realm.Realm
 
-class JakeApp : Application() {
+class JakeApp: Application() {
 
-    val component: AppComponent by lazy {
-        DaggerAppComponent
-            .builder()
-            .appModule(AppModule(this))
-            .build()
-    }
+  val component: AppComponent by lazy {
+    DaggerAppComponent
+        .builder()
+        .appModule(AppModule(this))
+        .build()
+  }
 
-    override fun onCreate() {
-        super.onCreate()
-        component.inject(this)
-        Realm.init(this)
-    }
+  /**
+   * OnCreate init Realm and Dagger.
+   */
+  override fun onCreate() {
+    super.onCreate()
+    component.inject(this)
+    Realm.init(this)
+  }
 }

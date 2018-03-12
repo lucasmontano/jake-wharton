@@ -13,36 +13,49 @@ import java.io.IOException
 
 class RepoApiService(private val realm: Realm) {
 
-    private var repoAPI: RepoAPI = RetrofitAdapterFactory.adapter.create<RepoAPI>(RepoAPI::class.java)
+  private var repoAPI: RepoAPI = RetrofitAdapterFactory.adapter.create<RepoAPI>(RepoAPI::class.java)
 
-    fun getRepo(url: String) : Observable<Response<ResponseData>> {
-        return repoAPI.getRepo(url)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnError { t -> onError(t) }
-                .doOnNext { r -> r.body()?.repos?.let { processResponse(it) } }
+  /**
+   * @param url
+   */
+  fun getRepo(url: String): Observable<Response<ResponseData>> {
+    return repoAPI.getRepo(url)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .doOnError { t -> onError(t) }
+        .doOnNext { r -> r.body()?.repos?.let { processResponse(it) } }
+  }
+
+  /**
+   * Save RepoData in Realm.
+   *
+   * @param listRepoData
+   */
+  private fun processResponse(listRepoData: List<RepoData>) {
+    realm.beginTransaction()
+    listRepoData.forEach {
+
+      realm.copyToRealmOrUpdate(it)
     }
+    realm.commitTransaction()
+  }
 
-    private fun processResponse(response: List<RepoData>) {
-        realm.beginTransaction()
-        response.forEach {
+  /**
+   * Log error.
+   *
+   * @param throwable
+   */
+  private fun onError(throwable: Throwable) {
 
-            realm.copyToRealmOrUpdate(it)
-        }
-        realm.commitTransaction()
+    if (throwable is HttpException) {
+
+      // We had non-2XX http error
+      Log.e("RepoApiServiceError", "HTTPException: " + throwable.code())
     }
+    if (throwable is IOException) {
 
-    private fun onError(throwable: Throwable) {
-
-        if (throwable is HttpException) {
-
-            // We had non-2XX http error
-            Log.e("RepoApiServiceError", "HTTPException: " + throwable.code())
-        }
-        if (throwable is IOException) {
-
-            // A network or conversion error happened
-            Log.e("RepoApiServiceError", "IOException: " + throwable.message)
-        }
+      // A network or conversion error happened
+      Log.e("RepoApiServiceError", "IOException: " + throwable.message)
     }
+  }
 }

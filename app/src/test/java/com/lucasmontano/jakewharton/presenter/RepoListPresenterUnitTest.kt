@@ -19,164 +19,166 @@ import java.util.concurrent.CompletableFuture
 @RunWith(MockitoJUnitRunner::class)
 class RepoListPresenterUnitTest {
 
-    companion object {
-        @ClassRule @JvmField
-        val schedulers = RxImmediateSchedulerRule()
+  companion object {
+    @ClassRule
+    @JvmField
+    val schedulers = RxImmediateSchedulerRule()
+  }
+
+  private lateinit var repoApiService: RepoApiService
+  private lateinit var repoListPresenter: RepoListPresenter
+
+  @Before
+  fun setUp() {
+    repoApiService = RepoApiService(Realm.getDefaultInstance())
+    repoListPresenter = RepoListPresenter(
+        GetRepoInteractor(repoApiService, Realm.getDefaultInstance()))
+  }
+
+  @Test
+  @Throws(Exception::class)
+  fun testLoadRepos() {
+
+    val future = CompletableFuture<List<RepoData>>()
+
+    val repoListView: RepoListView = object: RepoListView {
+
+      override fun showTopLoading() {
+
+      }
+
+      override fun hideTopLoading() {
+
+      }
+
+      override fun showNextPageLoading() {
+
+      }
+
+      override fun hideNextPageLoading() {
+
+      }
+
+      override fun showRepos(dataSet: List<RepoData>) {
+        future.complete(dataSet)
+      }
+
+      override fun warnLastPage() {
+
+      }
+
+      override fun showError(e: ErrorData) {
+
+      }
+    }
+    repoListPresenter.init(repoListView)
+    repoListPresenter.loadFirst()
+
+    future.get().let {
+      Assert.assertTrue(it.size == 15)
+    }
+  }
+
+  @Test
+  @Throws(Exception::class)
+  fun testPaginationLimits() {
+
+    val future = CompletableFuture<Int>()
+    var pages = 0
+
+    val repoListView: RepoListView = object: RepoListView {
+
+      override fun hideTopLoading() {
+
+      }
+
+      override fun showError(e: ErrorData) {
+
+      }
+
+      override fun warnLastPage() {
+        future.complete(pages)
+      }
+
+      override fun showTopLoading() {
+
+      }
+
+      override fun showNextPageLoading() {
+
+      }
+
+      override fun hideNextPageLoading() {
+
+      }
+
+      override fun showRepos(dataSet: List<RepoData>) {
+        pages += 1
+        repoListPresenter.loadNext()
+      }
+    }
+    repoListPresenter.init(repoListView)
+    repoListPresenter.loadFirst()
+
+    future.get().let {
+      Assert.assertTrue(it == 7)
+    }
+  }
+
+  @Test
+  @Throws(Exception::class)
+  fun testPaginationLoadings() {
+
+    val futureLoadNext = CompletableFuture<Int>()
+    val futureLoadFirst = CompletableFuture<Int>()
+    var nextLoadCount = 0
+    var firstLoadCount = 0
+
+    val repoListView: RepoListView = object: RepoListView {
+
+      override fun showError(e: ErrorData) {
+
+      }
+
+      override fun hideTopLoading() {
+        futureLoadFirst.complete(firstLoadCount)
+        repoListPresenter.loadNext()
+      }
+
+      override fun warnLastPage() {
+        futureLoadNext.complete(nextLoadCount)
+      }
+
+      override fun showTopLoading() {
+        firstLoadCount += 1
+      }
+
+      override fun showNextPageLoading() {
+        nextLoadCount += 1
+      }
+
+      override fun hideNextPageLoading() {
+        repoListPresenter.loadNext()
+      }
+
+      override fun showRepos(dataSet: List<RepoData>) {
+
+      }
+    }
+    repoListPresenter.init(repoListView)
+    repoListPresenter.loadFirst()
+
+    futureLoadNext.get().let {
+      Assert.assertTrue("Expected 6 next page loading but was $it", it == 6)
     }
 
-    private lateinit var repoApiService : RepoApiService
-    private lateinit var repoListPresenter: RepoListPresenter
-
-    @Before
-    fun setUp() {
-        repoApiService = RepoApiService(Realm.getDefaultInstance())
-        repoListPresenter = RepoListPresenter(GetRepoInteractor(repoApiService, Realm.getDefaultInstance()))
+    futureLoadFirst.get().let {
+      Assert.assertTrue("Expected one first page loading but was $it", it == 1)
     }
+  }
 
-    @Test
-    @Throws(Exception::class)
-    fun testLoadRepos() {
-
-        val future = CompletableFuture<List<RepoData>>()
-
-        val repoListView : RepoListView = object : RepoListView {
-
-            override fun showTopLoading() {
-
-            }
-
-            override fun hideTopLoading() {
-
-            }
-
-            override fun showNextPageLoading() {
-
-            }
-
-            override fun hideNextPageLoading() {
-
-            }
-
-            override fun showRepos(dataSet: List<RepoData>) {
-                future.complete(dataSet)
-            }
-
-            override fun warnLastPage() {
-
-            }
-
-            override fun showError(e: ErrorData) {
-
-            }
-        }
-        repoListPresenter.init(repoListView)
-        repoListPresenter.loadFirst()
-
-        future.get().let {
-            Assert.assertTrue(it.size == 15)
-        }
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun testPaginationLimits() {
-
-        val future = CompletableFuture<Int>()
-        var pages = 0
-
-        val repoListView : RepoListView = object : RepoListView {
-
-            override fun hideTopLoading() {
-
-            }
-
-            override fun showError(e: ErrorData) {
-
-            }
-
-            override fun warnLastPage() {
-                future.complete(pages)
-            }
-
-            override fun showTopLoading() {
-
-            }
-
-            override fun showNextPageLoading() {
-
-            }
-
-            override fun hideNextPageLoading() {
-
-            }
-
-            override fun showRepos(dataSet: List<RepoData>) {
-                pages += 1
-                repoListPresenter.loadNext()
-            }
-        }
-        repoListPresenter.init(repoListView)
-        repoListPresenter.loadFirst()
-
-        future.get().let {
-            Assert.assertTrue(it == 7)
-        }
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun testPaginationLoadings() {
-
-        val futureLoadNext = CompletableFuture<Int>()
-        val futureLoadFirst = CompletableFuture<Int>()
-        var nextLoadCount = 0
-        var firstLoadCount = 0
-
-        val repoListView : RepoListView = object : RepoListView {
-
-            override fun showError(e: ErrorData) {
-
-            }
-
-            override fun hideTopLoading() {
-                futureLoadFirst.complete(firstLoadCount)
-                repoListPresenter.loadNext()
-            }
-
-            override fun warnLastPage() {
-                futureLoadNext.complete(nextLoadCount)
-            }
-
-            override fun showTopLoading() {
-                firstLoadCount += 1
-            }
-
-            override fun showNextPageLoading() {
-                nextLoadCount += 1
-            }
-
-            override fun hideNextPageLoading() {
-                repoListPresenter.loadNext()
-            }
-
-            override fun showRepos(dataSet: List<RepoData>) {
-
-            }
-        }
-        repoListPresenter.init(repoListView)
-        repoListPresenter.loadFirst()
-
-        futureLoadNext.get().let {
-            Assert.assertTrue("Expected 6 next page loading but was $it", it == 6)
-        }
-
-        futureLoadFirst.get().let {
-            Assert.assertTrue("Expected one first page loading but was $it", it == 1)
-        }
-    }
-
-    @After
-    fun tearDown() {
-        repoListPresenter.unsubscribeFromNetworkRequests()
-    }
+  @After
+  fun tearDown() {
+    repoListPresenter.unsubscribeFromNetworkRequests()
+  }
 }

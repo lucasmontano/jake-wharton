@@ -20,49 +20,56 @@ import java.lang.reflect.Type
 
 object RetrofitAdapterFactory {
 
-    val adapter: Retrofit get() = createAdapter()
+  val adapter: Retrofit get() = createAdapter()
 
-    private fun createAdapter(): Retrofit {
+  /**
+   * Create a Retrofit instance.
+   */
+  private fun createAdapter(): Retrofit {
 
-        val interceptor = HttpLoggingInterceptor()
-        interceptor.level = HttpLoggingInterceptor.Level.BODY
+    val interceptor = HttpLoggingInterceptor()
+    interceptor.level = HttpLoggingInterceptor.Level.BODY
 
-        /**
-         * @TODO SSL handshake terminating in Android 4.4.4 (tested in Moto E device)
-         */
-        val okHttpClient = OkHttpClient.Builder()
-            .addInterceptor(interceptor)
-            .build()
+    /**
+     * @TODO SSL handshake terminating in Android 4.4.4 (tested in Moto E device)
+     */
+    val okHttpClient = OkHttpClient.Builder()
+        .addInterceptor(interceptor)
+        .build()
 
-        val gson = GsonBuilder().registerTypeAdapter(
-            ResponseData::class.java, ResponseDeserializer()
-        ).create()
+    val gson = GsonBuilder().registerTypeAdapter(
+        ResponseData::class.java, ResponseDeserializer()
+    ).create()
 
-        return Retrofit.Builder()
-                .baseUrl(BuildConfig.BASE_URL)
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .client(okHttpClient)
-                .build()
+    return Retrofit.Builder()
+        .baseUrl(BuildConfig.BASE_URL)
+        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+        .addConverterFactory(GsonConverterFactory.create(gson))
+        .client(okHttpClient)
+        .build()
+  }
+
+  /**
+   * Parsing the body: Array of RepoData when success and Object of ErrorData when error.
+   */
+  private class ResponseDeserializer: JsonDeserializer<ResponseData> {
+
+    @Throws(JsonParseException::class)
+    override fun deserialize(json: JsonElement, typeOfT: Type,
+        context: JsonDeserializationContext): ResponseData {
+
+      val response = ResponseData(null, null)
+
+      if (json.isJsonArray) {
+        // It is an array, parse the RepoData.
+        val responseType = object: TypeToken<List<RepoData>>() {}.type
+        response.repos = context.deserialize(json, responseType)
+      } else {
+        // Not an array, parse out the error info.
+        val responseType = object: TypeToken<ErrorData>() {}.type
+        response.error = context.deserialize(json, responseType)
+      }
+      return response
     }
-
-    private class ResponseDeserializer : JsonDeserializer<ResponseData> {
-
-        @Throws(JsonParseException::class)
-        override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): ResponseData {
-
-            val response = ResponseData(null, null)
-
-            if (json.isJsonArray) {
-                // It is an array, parse the RepoData.
-                val responseType = object : TypeToken<List<RepoData>>() {}.type
-                response.repos = context.deserialize(json, responseType)
-            } else {
-                // Not an array, parse out the error info.
-                val responseType = object : TypeToken<ErrorData>() {}.type
-                response.error = context.deserialize(json, responseType)
-            }
-            return response
-        }
-    }
+  }
 }

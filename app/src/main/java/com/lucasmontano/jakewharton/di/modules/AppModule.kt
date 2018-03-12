@@ -12,15 +12,19 @@ import javax.inject.Singleton
 @Module
 class AppModule(private val app: JakeApp) {
 
-    @Provides @Singleton
-    fun provideApplication() = app
+  @Provides
+  @Singleton
+  fun provideApplication() = app
 
-    @Provides
-    fun provideRepoApiService() = RepoApiService(Realm.getDefaultInstance())
+  @Provides
+  fun provideRepoApiService() = RepoApiService(Realm.getDefaultInstance())
 
-    @Provides @Singleton
-    fun provideGetRepoInteractor(repoApiService : RepoApiService) = GetRepoInteractor(repoApiService, Realm.getDefaultInstance())
+  @Provides
+  @Singleton
+  fun provideGetRepoInteractor(repoApiService: RepoApiService) = GetRepoInteractor(repoApiService,
+      Realm.getDefaultInstance())
 
-    @Provides
-    fun provideRepoListPresenter(getRepoInteractor : GetRepoInteractor) = RepoListPresenter(getRepoInteractor)
+  @Provides
+  fun provideRepoListPresenter(getRepoInteractor: GetRepoInteractor) = RepoListPresenter(
+      getRepoInteractor)
 }

@@ -8,6 +8,10 @@ import retrofit2.http.Url
 
 interface RepoAPI {
 
-    @GET
-    fun getRepo(@Url url: String): Observable<Response<ResponseData>>
+  /**
+   * Check @see <a href="https://developer.github.com/v3/repos/#list-user-repositories">GitHub Documentation</a>
+   * @param url
+   */
+  @GET
+  fun getRepo(@Url url: String): Observable<Response<ResponseData>>
 }

@@ -15,84 +15,91 @@ import java.util.concurrent.CompletableFuture
 @RunWith(MockitoJUnitRunner::class)
 class GetRepoInteractorUnitTest {
 
-    companion object {
-        @ClassRule @JvmField
-        val schedulers = RxImmediateSchedulerRule()
+  companion object {
+    @ClassRule
+    @JvmField
+    val schedulers = RxImmediateSchedulerRule()
+  }
+
+  private lateinit var getRepoInteractor: GetRepoInteractor
+
+  @Before
+  fun setUp() {
+    val repoApiService = RepoApiService(Realm.getDefaultInstance())
+    getRepoInteractor = GetRepoInteractor(repoApiService = repoApiService,
+        realm = Realm.getDefaultInstance())
+  }
+
+  @Test
+  @Throws(Exception::class)
+  fun testGetRepoInteractor() {
+
+    val future = CompletableFuture<ResponseData>()
+
+    val observer = object: Observer<ResponseData> {
+
+      override fun onComplete() {
+
+      }
+
+      override fun onSubscribe(d: Disposable) {
+
+      }
+
+      override fun onNext(t: ResponseData) {
+        future.complete(t)
+      }
+
+      override fun onError(e: Throwable) {
+
+      }
     }
 
-    private lateinit var getRepoInteractor : GetRepoInteractor
+    getRepoInteractor.observe(observer)
+    getRepoInteractor.getFirstPage()
 
-    @Before
-    fun setUp() {
-        val repoApiService = RepoApiService(Realm.getDefaultInstance())
-        getRepoInteractor = GetRepoInteractor(repoApiService = repoApiService, realm = Realm.getDefaultInstance())
+    future.get()?.repos?.forEach { repoData: RepoData ->
+      Assert.assertNotNull(repoData.description)
+    }
+  }
+
+  @Test
+  @Throws(Exception::class)
+  fun testErrorReturned() {
+
+    val future = CompletableFuture<String>()
+
+    val observer = object: Observer<ResponseData> {
+
+      override fun onComplete() {
+
+      }
+
+      override fun onSubscribe(d: Disposable) {
+
+      }
+
+      override fun onNext(t: ResponseData) {
+        future.complete(t.error?.message)
+      }
+
+      override fun onError(e: Throwable) {
+
+      }
     }
 
-    @Test
-    @Throws(Exception::class)
-    fun testGetRepoInteractor() {
+    getRepoInteractor.setGitHubUserBaseUrl(
+        "https://api.github.com/user/9999999999/repos?page=1&per_page=15")
+    getRepoInteractor.observe(observer)
+    getRepoInteractor.getFirstPage()
 
-        val future = CompletableFuture<ResponseData>()
-
-        val observer = object: Observer<ResponseData> {
-
-            override fun onComplete() {
-
-            }
-
-            override fun onSubscribe(d: Disposable) {
-
-            }
-
-            override fun onNext(t: ResponseData) {
-                future.complete(t)
-            }
-
-            override fun onError(e: Throwable) {
-
-            }
-        }
-
-        getRepoInteractor.observe(observer)
-        getRepoInteractor.getFirstPage()
-
-        future.get()?.repos?.forEach { repoData: RepoData -> Assert.assertNotNull(repoData.description) }
+    future.get().let {
+      Assert.assertEquals("Error Not Found expected but receive $it", "Not Found", it)
     }
+  }
 
-    @Test
-    @Throws(Exception::class)
-    fun testErrorReturned() {
+  @After
+  fun tearDown() {
 
-        val future = CompletableFuture<String>()
-
-        val observer = object: Observer<ResponseData> {
-
-            override fun onComplete() {
-
-            }
-
-            override fun onSubscribe(d: Disposable) {
-
-            }
-
-            override fun onNext(t: ResponseData) {
-                future.complete(t.error?.message)
-            }
-
-            override fun onError(e: Throwable) {
-
-            }
-        }
-
-        getRepoInteractor.setGitHubUserBaseUrl("https://api.github.com/user/9999999999/repos?page=1&per_page=15")
-        getRepoInteractor.observe(observer)
-        getRepoInteractor.getFirstPage()
-
-        future.get().let { Assert.assertEquals("Error Not Found expected but receive $it", "Not Found", it) }
-    }
-
-    @After
-    fun tearDown() {
-
-    }
+  }
 }

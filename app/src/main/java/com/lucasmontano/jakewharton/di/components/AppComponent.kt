@@ -11,7 +11,7 @@ import javax.inject.Singleton
 @Component(modules = [(AppModule::class)])
 interface AppComponent {
 
-    fun inject(jakeApp: JakeApp)
-    fun inject(mainActivity: MainActivity)
-    fun inject(fragmentListRepo: RepoListFragment)
+  fun inject(jakeApp: JakeApp)
+  fun inject(mainActivity: MainActivity)
+  fun inject(fragmentListRepo: RepoListFragment)
 }

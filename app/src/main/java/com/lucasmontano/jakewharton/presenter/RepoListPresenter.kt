@@ -11,75 +11,96 @@ import io.reactivex.disposables.Disposable
 import javax.inject.Inject
 
 
-class RepoListPresenter @Inject constructor(private val getRepoInteractor: GetRepoInteractor) : BaseNetworkingPresenter {
+class RepoListPresenter @Inject constructor(
+    private val getRepoInteractor: GetRepoInteractor): BaseNetworkingPresenter {
 
-    private var dataSet: ArrayList<RepoData> = ArrayList()
-    private lateinit var view: RepoListView
-    private var compositeDisposable: CompositeDisposable = CompositeDisposable()
+  private var dataSet: ArrayList<RepoData> = ArrayList()
+  private lateinit var view: RepoListView
+  private var compositeDisposable: CompositeDisposable = CompositeDisposable()
 
-    fun init(view: RepoListView) {
-        this.view = view
-        getRepoInteractor.observe(getObserver())
+  /**
+   * A view that use this presenter should implement the interface RepoListView.
+   */
+  fun init(view: RepoListView) {
+    this.view = view
+    getRepoInteractor.observe(getObserver())
+  }
+
+  /**
+   * Dispose all the Disposables in CompositeDisposable.
+   */
+  override fun unsubscribeFromNetworkRequests() {
+    compositeDisposable.run { dispose() }
+  }
+
+  /**
+   * Load the first page and warn the view to show the loading.
+   * The DataSet is cleared when the first page is requested.
+   */
+  fun loadFirst() {
+
+    // Show top loading.
+    view.showTopLoading()
+
+    // Request first page.
+    getRepoInteractor.getFirstPage()
+
+    // Clear current dataSet.
+    dataSet.clear()
+  }
+
+  /**
+   * Load the next page if any.
+   * Warn the view when we are in the last page.
+   */
+  fun loadNext() {
+
+    val hasNextPage: Boolean = getRepoInteractor.getNextPage()
+
+    // Show loading if we have next page.
+    if (hasNextPage) {
+      view.showNextPageLoading()
+    } else {
+      view.warnLastPage()
     }
+  }
 
-    override fun unsubscribeFromNetworkRequests() {
-        compositeDisposable.run { dispose() }
-    }
+  /**
+   * Observe the Interactor which will Publish the dataSet and errors.
+   *
+   * The dataSet will be updated merging the new page with the last ones. The view only have to
+   * update the adapter dataSet or display the error. In some case we will have dataSet and error.
+   */
+  private fun getObserver(): Observer<ResponseData> {
 
-    fun loadFirst() {
+    return object: Observer<ResponseData> {
 
-        // Show top loading.
-        view.showTopLoading()
+      override fun onComplete() {
 
-        // Request first page.
-        getRepoInteractor.getFirstPage()
+      }
 
-        // Clear current dataSet.
-        dataSet.clear()
-    }
+      override fun onSubscribe(d: Disposable) {
+        compositeDisposable.add(d)
+      }
 
-    fun loadNext() {
+      override fun onNext(result: ResponseData) {
 
-        val hasNextPage : Boolean = getRepoInteractor.getNextPage()
+        view.hideNextPageLoading()
+        view.hideTopLoading()
 
-        // Show loading if we have next page.
-        if (hasNextPage) {
-            view.showNextPageLoading()
-        } else {
-            view.warnLastPage()
+        result.repos?.let {
+          dataSet.addAll(it)
+          view.showRepos(dataSet)
         }
-    }
 
-    private fun getObserver(): Observer<ResponseData> {
-
-        return object: Observer<ResponseData> {
-
-            override fun onComplete() {
-
-            }
-
-            override fun onSubscribe(d: Disposable) {
-                compositeDisposable.add(d)
-            }
-
-            override fun onNext(result: ResponseData) {
-
-                view.hideNextPageLoading()
-                view.hideTopLoading()
-
-                result.repos?.let {
-                    dataSet.addAll(it)
-                    view.showRepos(dataSet)
-                }
-
-                result.error?.let {
-                    view.showError(it)
-                }
-            }
-
-            override fun onError(e: Throwable) {
-                view.showError(ErrorData("", ""))
-            }
+        result.error?.let {
+          view.showError(it)
         }
+      }
+
+      override fun onError(e: Throwable) {
+        view.showError(ErrorData("", ""))
+      }
     }
+  }
 }
