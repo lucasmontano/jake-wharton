@@ -21,6 +21,8 @@ import kotlinx.android.synthetic.main.fragment_repo_list.view.*
 import javax.inject.Inject
 import android.content.Intent
 import android.net.Uri
+import com.lucasmontano.jakewharton.view.utils.SpaceDividerItemDecoration
+import kotlinx.android.synthetic.main.fragment_repo_list.relativeLayout_empty
 
 
 class RepoListFragment: Fragment(), RepoListView {
@@ -29,7 +31,7 @@ class RepoListFragment: Fragment(), RepoListView {
   lateinit var presenter: RepoListPresenter
 
   private var mListener: OnListFragmentInteractionListener? = null
-  private val adapter = RepoRecyclerViewAdapter(mListener)
+  private lateinit var adapter: RepoRecyclerViewAdapter
   private lateinit var layoutManager: LinearLayoutManager
 
   override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -48,6 +50,8 @@ class RepoListFragment: Fragment(), RepoListView {
       savedInstanceState: Bundle?): View? {
     val view = inflater.inflate(R.layout.fragment_repo_list, container, false)
 
+    adapter = RepoRecyclerViewAdapter(mListener!!)
+
     initRecyclerView(view)
     initSwipeRefresh(view)
 
@@ -61,9 +65,16 @@ class RepoListFragment: Fragment(), RepoListView {
    * - On pull if it is loading new repos, set swipe refreshing status to false.
    */
   private fun initSwipeRefresh(view: View) {
+
     view.swipeRefreshLayout_repos.setOnRefreshListener {
 
-      if (!adapter.isLoading) presenter.loadFirst() else view.swipeRefreshLayout_repos.isRefreshing = false
+      if ( ! adapter.isLoading) {
+
+        presenter.loadFirst()
+      } else {
+
+        view.swipeRefreshLayout_repos.isRefreshing = false
+      }
     }
   }
 
@@ -76,6 +87,9 @@ class RepoListFragment: Fragment(), RepoListView {
   private fun initRecyclerView(view: View) {
     layoutManager = LinearLayoutManager(view.context)
     view.recyclerView_repos.layoutManager = layoutManager
+    view.recyclerView_repos.addItemDecoration(
+        SpaceDividerItemDecoration(resources.getDimensionPixelOffset(R.dimen.default_padding))
+    )
     view.recyclerView_repos.adapter = adapter
     view.recyclerView_repos.addOnScrollListener(object: RecyclerView.OnScrollListener() {
 
@@ -86,7 +100,7 @@ class RepoListFragment: Fragment(), RepoListView {
         val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
 
         // Load next page.
-        if (!adapter.isLoading && totalItemCount <= (lastVisibleItem + adapter.visibleThreshold)) {
+        if ( ! adapter.isLoading && totalItemCount <= (lastVisibleItem + adapter.visibleThreshold)) {
           presenter.loadNext()
         }
 
@@ -124,9 +138,18 @@ class RepoListFragment: Fragment(), RepoListView {
    */
   override fun showRepos(dataSet: List<RepoData>) {
 
-    adapter.run {
-      adapter.dataSet = dataSet
-      notifyDataSetChanged()
+    if (dataSet.isEmpty()) {
+
+      relativeLayout_empty.visibility = View.VISIBLE
+
+    } else {
+
+      relativeLayout_empty.visibility = View.GONE
+
+      adapter.run {
+        adapter.dataSet = dataSet
+        notifyDataSetChanged()
+      }
     }
   }
 
@@ -187,11 +210,14 @@ class RepoListFragment: Fragment(), RepoListView {
 
       errorData.message?.let { message ->
 
-        val snackBar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE)
+        val snackBar = Snackbar.make(view, message, Snackbar.LENGTH_LONG)
 
         errorData.documentation_url?.let { url ->
 
+          snackBar.duration = Snackbar.LENGTH_INDEFINITE
           snackBar.setAction(R.string.detail) {
+
+            snackBar.dismiss()
 
             val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
             startActivity(browserIntent)
@@ -204,7 +230,7 @@ class RepoListFragment: Fragment(), RepoListView {
   }
 
   interface OnListFragmentInteractionListener {
-    fun onListFragmentInteraction(repo: RepoData)
+    fun onExploreRepo(url: String)
   }
 
   companion object {

@@ -1,5 +1,6 @@
 package com.lucasmontano.jakewharton.presenter
 
+import android.net.ConnectivityManager
 import com.lucasmontano.jakewharton.data.ErrorData
 import com.lucasmontano.jakewharton.data.RepoData
 import com.lucasmontano.jakewharton.data.ResponseData
@@ -10,9 +11,9 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import javax.inject.Inject
 
-
 class RepoListPresenter @Inject constructor(
-    private val getRepoInteractor: GetRepoInteractor): BaseNetworkingPresenter {
+    private val getRepoInteractor: GetRepoInteractor,
+    private val connectivityManager: ConnectivityManager?): BaseNetworkingPresenter {
 
   private var dataSet: ArrayList<RepoData> = ArrayList()
   private lateinit var view: RepoListView
@@ -24,6 +25,21 @@ class RepoListPresenter @Inject constructor(
   fun init(view: RepoListView) {
     this.view = view
     getRepoInteractor.observe(getObserver())
+
+    checkConnectivity()
+  }
+
+  /**
+   * Check device connectivity.
+   *
+   * Warn RepoListView if there is no connectivity.
+   */
+  fun checkConnectivity() {
+    connectivityManager?.run {
+      val activeNetwork = activeNetworkInfo
+      val isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting
+      if ( ! isConnected) view.showError(ErrorData("Check your connectivity ;)", null))
+    }
   }
 
   /**

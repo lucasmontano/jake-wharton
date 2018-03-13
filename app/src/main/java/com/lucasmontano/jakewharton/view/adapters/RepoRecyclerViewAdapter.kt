@@ -4,17 +4,17 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import com.lucasmontano.jakewharton.R
 import com.lucasmontano.jakewharton.data.RepoData
 
 import com.lucasmontano.jakewharton.view.fragments.RepoListFragment.OnListFragmentInteractionListener
-import kotlinx.android.synthetic.main.repo_item.view.*
-import kotlinx.android.synthetic.main.repo_loading.view.*
+import kotlinx.android.synthetic.main.item_repo.view.*
+import kotlinx.android.synthetic.main.item_loading.view.*
 
-class RepoRecyclerViewAdapter(
-    private val mListener: OnListFragmentInteractionListener?): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class RepoRecyclerViewAdapter(private val mListener: OnListFragmentInteractionListener): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
   /**
    * View Types
@@ -67,7 +67,7 @@ class RepoRecyclerViewAdapter(
    * @param parent
    */
   private fun inflateRepoView(parent: ViewGroup): RepoViewHolder {
-    val view = LayoutInflater.from(parent.context).inflate(R.layout.repo_item, parent, false)
+    val view = LayoutInflater.from(parent.context).inflate(R.layout.item_repo, parent, false)
     return RepoViewHolder(view)
   }
 
@@ -77,7 +77,7 @@ class RepoRecyclerViewAdapter(
    * @param parent
    */
   private fun inflateLoadingView(parent: ViewGroup): LoadingViewHolder {
-    val view = LayoutInflater.from(parent.context).inflate(R.layout.repo_loading, parent, false)
+    val view = LayoutInflater.from(parent.context).inflate(R.layout.item_loading, parent, false)
     return LoadingViewHolder(view)
   }
 
@@ -110,20 +110,28 @@ class RepoRecyclerViewAdapter(
    */
   private fun bindRepo(holder: RepoViewHolder, position: Int) {
 
-    holder.mItem = dataSet!![position]
-    holder.mName.text = dataSet!![position].name
+    val repoData = dataSet!![position]
 
-    holder.mView.setOnClickListener {
-      mListener?.onListFragmentInteraction(holder.mItem!!)
+    holder.mItem = repoData
+    holder.mName.text = repoData.name
+    holder.mDescription.text = repoData.description
+    holder.mLanguage.text = repoData.language
+
+    holder.mExplore.tag = repoData.htmlUrl
+    holder.mExplore.setOnClickListener {
+      mListener.onExploreRepo(it.tag as String)
     }
   }
 
   /**
    * Repo ViewHolder.
    */
-  inner class RepoViewHolder(val mView: View): RecyclerView.ViewHolder(mView) {
+  inner class RepoViewHolder(mView: View): RecyclerView.ViewHolder(mView) {
 
     val mName: TextView = mView.textView_name as TextView
+    val mDescription: TextView = mView.textView_description as TextView
+    val mLanguage: TextView = mView.textView_language as TextView
+    val mExplore: TextView = mView.button_explore as Button
     var mItem: RepoData? = null
   }
 

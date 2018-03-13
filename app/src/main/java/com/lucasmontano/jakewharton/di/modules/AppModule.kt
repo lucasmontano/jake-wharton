@@ -1,5 +1,7 @@
 package com.lucasmontano.jakewharton.di.modules
 
+import android.content.Context
+import android.net.ConnectivityManager
 import com.lucasmontano.jakewharton.JakeApp
 import com.lucasmontano.jakewharton.interactor.GetRepoInteractor
 import com.lucasmontano.jakewharton.networking.RepoApiService
@@ -21,10 +23,12 @@ class AppModule(private val app: JakeApp) {
 
   @Provides
   @Singleton
-  fun provideGetRepoInteractor(repoApiService: RepoApiService) = GetRepoInteractor(repoApiService,
-      Realm.getDefaultInstance())
+  fun provideGetRepoInteractor(repoApiService: RepoApiService) = GetRepoInteractor(
+      repoApiService, Realm.getDefaultInstance()
+  )
 
   @Provides
   fun provideRepoListPresenter(getRepoInteractor: GetRepoInteractor) = RepoListPresenter(
-      getRepoInteractor)
+      getRepoInteractor, app.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+  )
 }

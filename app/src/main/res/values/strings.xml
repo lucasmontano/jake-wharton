@@ -1,4 +1,9 @@
 <resources>
   <string name="app_name">Jake Wharton</string>
   <string name="detail">Detail</string>
+  <string name="permission">Permission :)</string>
+  <string name="permission_desc">Please, give me your permission.</string>
+  <string name="sure">Sure, no problem!</string>
+  <string name="explore">Explore</string>
+  <string name="empty_repo_list">We could not find any repository yet :(</string>
 </resources>

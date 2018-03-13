@@ -30,7 +30,7 @@ class RepoListPresenterUnitTest {
   @Before
   fun setUp() {
     repoApiService = RepoApiService(null)
-    repoListPresenter = RepoListPresenter(GetRepoInteractor(repoApiService, null))
+    repoListPresenter = RepoListPresenter(GetRepoInteractor(repoApiService, null), null)
   }
 
   @Test
