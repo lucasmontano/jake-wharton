@@ -18,8 +18,7 @@ import com.lucasmontano.jakewharton.data.RepoData
 import io.realm.Realm
 
 @Singleton
-class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiService,
-    private val realm: Realm) {
+class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiService, private val realm: Realm?) {
 
   private val subscription: PublishSubject<ResponseData> = PublishSubject.create()
   private var pagesLinks: LinkHeaderData = LinkHeaderData("")
@@ -122,7 +121,7 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
         result.errorBody()?.let {
 
           // Fetch from Realm only in first page request.
-          if (isFirstPageRequest()) loadFromRealm()
+          if (isFirstPageRequest() && realm != null) loadFromRealm()
 
           // Show the error.
           val errorData = Gson().fromJson(it.string(), ErrorData::class.java)
@@ -152,20 +151,26 @@ class GetRepoInteractor @Inject constructor(private val repoApiService: RepoApiS
    */
   private fun loadFromRealm() {
 
-    val realmResults = realm.where(RepoData::class.java).findAll()
+    if (realm != null) {
 
-    if (realmResults.isLoaded) {
+      val realmResults = realm.where(RepoData::class.java).findAll()
 
-      val repos = ArrayList<RepoData>()
-      realmResults.forEach {
-        repos.add(it)
+      if (realmResults.isLoaded) {
+
+        val repos = ArrayList<RepoData>()
+        realmResults.forEach {
+          repos.add(it)
+        }
+
+        val responseData = ResponseData(repos, null)
+        subscription.onNext(responseData)
+
+        isUsingCache = repos.isNotEmpty()
+
+      } else {
+
+        publishError()
       }
-
-      val responseData = ResponseData(repos, null)
-      subscription.onNext(responseData)
-
-      isUsingCache = repos.isNotEmpty()
-
     } else {
 
       publishError()

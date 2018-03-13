@@ -8,7 +8,6 @@ import com.lucasmontano.jakewharton.data.ResponseData
 import com.lucasmontano.jakewharton.networking.RepoApiService
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
-import io.realm.Realm
 import org.junit.*
 import java.util.concurrent.CompletableFuture
 
@@ -25,9 +24,8 @@ class GetRepoInteractorUnitTest {
 
   @Before
   fun setUp() {
-    val repoApiService = RepoApiService(Realm.getDefaultInstance())
-    getRepoInteractor = GetRepoInteractor(repoApiService = repoApiService,
-        realm = Realm.getDefaultInstance())
+    val repoApiService = RepoApiService(null)
+    getRepoInteractor = GetRepoInteractor(repoApiService = repoApiService, realm = null)
   }
 
   @Test

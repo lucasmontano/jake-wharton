@@ -12,7 +12,6 @@ import com.lucasmontano.jakewharton.data.RepoData
 import com.lucasmontano.jakewharton.interactor.GetRepoInteractor
 import com.lucasmontano.jakewharton.networking.RepoApiService
 import com.lucasmontano.jakewharton.view.interfaces.RepoListView
-import io.realm.Realm
 import org.junit.ClassRule
 import java.util.concurrent.CompletableFuture
 
@@ -30,53 +29,8 @@ class RepoListPresenterUnitTest {
 
   @Before
   fun setUp() {
-    repoApiService = RepoApiService(Realm.getDefaultInstance())
-    repoListPresenter = RepoListPresenter(
-        GetRepoInteractor(repoApiService, Realm.getDefaultInstance()))
-  }
-
-  @Test
-  @Throws(Exception::class)
-  fun testLoadRepos() {
-
-    val future = CompletableFuture<List<RepoData>>()
-
-    val repoListView: RepoListView = object: RepoListView {
-
-      override fun showTopLoading() {
-
-      }
-
-      override fun hideTopLoading() {
-
-      }
-
-      override fun showNextPageLoading() {
-
-      }
-
-      override fun hideNextPageLoading() {
-
-      }
-
-      override fun showRepos(dataSet: List<RepoData>) {
-        future.complete(dataSet)
-      }
-
-      override fun warnLastPage() {
-
-      }
-
-      override fun showError(e: ErrorData) {
-
-      }
-    }
-    repoListPresenter.init(repoListView)
-    repoListPresenter.loadFirst()
-
-    future.get().let {
-      Assert.assertTrue(it.size == 15)
-    }
+    repoApiService = RepoApiService(null)
+    repoListPresenter = RepoListPresenter(GetRepoInteractor(repoApiService, null))
   }
 
   @Test
@@ -92,7 +46,7 @@ class RepoListPresenterUnitTest {
 
       }
 
-      override fun showError(e: ErrorData) {
+      override fun showError(errorData: ErrorData) {
 
       }
 
@@ -136,7 +90,7 @@ class RepoListPresenterUnitTest {
 
     val repoListView: RepoListView = object: RepoListView {
 
-      override fun showError(e: ErrorData) {
+      override fun showError(errorData: ErrorData) {
 
       }
 

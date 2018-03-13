@@ -11,7 +11,7 @@ import retrofit2.HttpException
 import retrofit2.Response
 import java.io.IOException
 
-class RepoApiService(private val realm: Realm) {
+class RepoApiService(private val realm: Realm?) {
 
   private var repoAPI: RepoAPI = RetrofitAdapterFactory.adapter.create<RepoAPI>(RepoAPI::class.java)
 
@@ -32,12 +32,18 @@ class RepoApiService(private val realm: Realm) {
    * @param listRepoData
    */
   private fun processResponse(listRepoData: List<RepoData>) {
-    realm.beginTransaction()
-    listRepoData.forEach {
 
-      realm.copyToRealmOrUpdate(it)
+    realm?.run {
+
+      beginTransaction()
+
+      listRepoData.forEach {
+
+        copyToRealmOrUpdate(it)
+      }
+
+      commitTransaction()
     }
-    realm.commitTransaction()
   }
 
   /**
