@@ -1,43 +1,43 @@
 package com.lucasmontano.jakewharton.networking
 
+import com.lucasmontano.jakewharton.BuildConfig
 import io.reactivex.Observable
-import io.reactivex.functions.Consumer
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
-import retrofit2.Response
 import com.lucasmontano.jakewharton.RxImmediateSchedulerRule
+import com.lucasmontano.jakewharton.data.ResponseData
 import org.junit.ClassRule
+import retrofit2.Response
 
 @RunWith(MockitoJUnitRunner::class)
 class RepoApiServiceUnitTest {
 
-    companion object {
-        @ClassRule @JvmField
-        val schedulers = RxImmediateSchedulerRule()
-    }
+  companion object {
+    @ClassRule
+    @JvmField
+    val schedulers = RxImmediateSchedulerRule()
+  }
 
-    private lateinit var repoApiService : RepoApiService
-    private lateinit var request: RepoRequest
+  private lateinit var repoApiService: RepoApiService
 
-    @Before
-    fun setUp() {
-        repoApiService = RepoApiService(RestAdapterFactory.adapter)
-        request = RepoRequest(1, 15)
-    }
+  @Before
+  fun setUp() {
+    repoApiService = RepoApiService(null)
+  }
 
-    @Test
-    @Throws(Exception::class)
-    fun testGetRepo() {
-        val observable : Observable<Response<RepoResponse>> = repoApiService.getRepo(request)
-        observable.subscribe(Consumer { t -> Assert.assertNotNull(t.body()) })
-    }
+  @Test
+  @Throws(Exception::class)
+  fun testGetRepo() {
+    val observable: Observable<Response<ResponseData>> = repoApiService.getRepo(BuildConfig.JAKE_URL)
+    observable.blockingFirst().body()?.repos?.isNotEmpty()?.let { Assert.assertTrue(it) }
+  }
 
-    @After
-    fun tearDown() {
+  @After
+  fun tearDown() {
 
-    }
+  }
 }

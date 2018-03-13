@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@android:color/white"
+              android:gravity="center_vertical"
+              android:orientation="vertical">
+
+  <TextView
+      android:id="@+id/textView_title"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/activity_margin"
+      android:gravity="center_horizontal"
+      android:text="@string/permission"
+      android:textColor="@color/text_headline"
+      android:textSize="@dimen/text_title"
+      android:textStyle="bold"/>
+
+  <TextView
+      android:id="@+id/textView_description"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="center_horizontal"
+      android:lineSpacingExtra="2dp"
+      android:padding="@dimen/intern_padding"
+      android:text="@string/permission_desc"
+      android:textColor="@color/text_body"
+      android:textSize="@dimen/text_body"/>
+
+  <Button
+      android:id="@+id/button_allow"
+      style="@style/Widget.AppCompat.Button.Colored"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center_horizontal"
+      android:layout_marginTop="@dimen/activity_margin"
+      android:padding="@dimen/default_padding"
+      android:text="@string/sure"
+      android:textColor="@color/colorPrimary"/>
+
+</LinearLayout>

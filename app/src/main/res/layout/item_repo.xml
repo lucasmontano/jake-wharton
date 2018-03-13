@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    card_view:cardBackgroundColor="@android:color/white"
+    card_view:cardCornerRadius="@dimen/repo_card_corner">
+
+  <LinearLayout
+      android:orientation="vertical"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textView_name"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="@dimen/default_padding"
+        android:layout_marginLeft="@dimen/default_padding"
+        android:layout_marginRight="@dimen/default_padding"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_headline"
+        android:textSize="@dimen/text_headline"/>
+
+    <TextView
+        android:id="@+id/textView_language"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/default_padding"
+        android:layout_marginRight="@dimen/default_padding"
+        android:layout_marginTop="@dimen/text_margin"
+        android:textColor="@color/text_body"
+        android:textSize="@dimen/text_body"/>
+
+    <TextView
+        android:id="@+id/textView_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/default_padding"
+        android:layout_marginRight="@dimen/default_padding"
+        android:layout_marginTop="@dimen/default_padding"
+        android:layout_marginBottom="@dimen/intern_padding"
+        android:textColor="@color/text_headline"
+        android:textSize="@dimen/text_body"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_marginTop="@dimen/default_padding"
+        android:background="@color/divider_color" />
+
+    <Button
+        android:id="@+id/button_explore"
+        android:layout_width="wrap_content"
+        android:background="@android:color/transparent"
+        android:layout_margin="@dimen/text_margin"
+        android:foreground="?selectableItemBackgroundBorderless"
+        style="@style/Base.Widget.AppCompat.Button.Borderless"
+        android:text="@string/explore"
+        android:textColor="@color/colorPrimary"
+        android:layout_height="wrap_content"/>
+
+  </LinearLayout>
+
+</android.support.v7.widget.CardView>

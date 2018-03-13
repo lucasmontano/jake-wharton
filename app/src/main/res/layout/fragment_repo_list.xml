@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+  <RelativeLayout
+      android:id="@+id/relativeLayout_empty"
+      android:layout_width="match_parent"
+      android:visibility="gone"
+      android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textView_empty_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:padding="@dimen/default_padding"
+        android:text="@string/empty_repo_list"
+        android:textAlignment="center"/>
+  </RelativeLayout>
+
+  <android.support.v4.widget.SwipeRefreshLayout
+      android:id="@+id/swipeRefreshLayout_repos"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView_repos"
+        android:name="com.lucasmontano.jakewharton.view.fragments.RepoListFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:overScrollMode="always"
+        android:padding="@dimen/default_padding"
+        app:layoutManager="LinearLayoutManager"
+        tools:context="com.lucasmontano.jakewharton.view.fragments.RepoListFragment"
+        tools:listitem="@layout/item_repo"/>
+
+  </android.support.v4.widget.SwipeRefreshLayout>
+</RelativeLayout>
